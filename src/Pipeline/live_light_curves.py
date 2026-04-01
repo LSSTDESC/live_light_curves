@@ -65,6 +65,10 @@ from live_light_curves.Util.util import {
 
 ### Update HTML interface
 # always send updated light curves to the web interface daily
+# perhaps we could be inspired by some code here https://github.com/duxfrederic/lightcurver/blob/main/lightcurver/plotting/plot_curves_template.html
+
+
+
 
 
 
