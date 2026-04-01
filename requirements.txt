@@ -1,6 +1,1 @@
-streamlit
-amoeba-agn
-astropy
-matplotlib
 numpy
-pandas
