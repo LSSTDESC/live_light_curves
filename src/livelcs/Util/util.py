@@ -65,21 +65,99 @@ def prepare_butler(
     '''prepare the lsst Butler required to get image data'''
     from lsst.daf.butler import Butler
 
-    ### requires fix
-    butler = Butler() #configuration, collections=collections)
+    ### works on lsst cloud
+    butler = Butler(configuration, collections=collections)
     assert butler is not None
     return butler
 
 
-
-def query_coords(butler, band, ra, dec, time_last):
+def query_coords(
+    butler,
+    band,
+    ra,
+    dec,
+    time_start=40587,
+    time_stop=None,
+    cutout_size=500,
+    verbose=False
+):
     '''checks a given set of coordinates if there is a new visit image'''
-    query = f"band.name = '{band}' AND visit_detector_region.region OVERLAPS POINT ({ra}, {dec})"
+    if time_stop is None:
+        time_stop = astro_time.now()
+    elif type(time_stop) is int:
+        if verbose:
+            print("Assuming stop time is in MJD")
+        time_stop = astro_time(time_stop, format="mjd", scale="tai")
+    if type(time_start) is int:
+        if verbose:
+            print("Assuming start time is in MJD")
+        time_start = astro_time(time_start, format="mjd", scale="tai")
+
+    # this is the time window to query in
+    timespan = Timespan(time_start, time_stop)
+
+    assert type(bands) is str
+
+    if band not in list("ugrizy"):
+        print("only lsst bands of 'u', 'g', 'r', 'i', 'z', 'y' are accepted now")
+        return None
     
+    # These are required to make sure the coordinates are actually
+    # in the visit image
+    center_point = geom.SpherePoint(
+        ra * geom.degrees,
+        dec * geom.degrees
+    )
+    extent = geom.Extent2I()
+    extent.setX(cutout_size)
+    extent.setY(cutout_size)
 
+    # main query
+    query = "band.name = :band AND " \
+            "visit_detector_region.region OVERLAPS POINT(:ra, :dec) AND " \
+            "visit.timespan OVERLAPS :timespan"
+    bind_params = {
+        "band": band,
+        "ra": ra,
+        "dec": dec,
+        "timespan": timespan
+    }
+    if verbose:
+        print("querying with parameters:", bind_params)
+    
+    # store cutouts in a list
+    output_cutouts = []
 
-    # get data at coordinates provided (add list support)
-    pass
+    try:
+        # this returns a list of all IDs associated with the query
+        dataset_references = butler.query_datasets(
+            "visit_image",
+            where=query,
+            bind=bind_params
+        )
+
+        for reference in dataset_references:
+            visit_image = butler.get(reference)
+
+            # this check needs astropy units
+            if visit_image.containsSkyCoords(
+                ra * u.deg,
+                dec * u.deg,
+            ):
+                this_image = visit_image.getCutout(
+                    center = point,
+                    size = extent
+                )
+                output_cutouts.append(this_image)
+        
+    except:
+        # this catches the failures when no images overlap with the
+        # chosen coordinates
+        if verbose:
+            print("no visit images found matching given times and coordinates")
+
+    return output_cutouts
+        
 
 def processed_stellar_cutouts():
     # use Lightcurver or other method

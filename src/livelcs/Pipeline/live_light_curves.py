@@ -6,8 +6,12 @@ from livelcs.Util.util import (
     open_tap_service,
     prepare_butler
 )
-from astropy.time import Time
-import time
+from astropy.time import Time as astro_time
+import astropy.units as u
+from lsst.daf.butler import (
+    Timespan,
+    Butler
+)
 #import Lightcurver
 #import Starred
 #import PYCS
@@ -20,10 +24,10 @@ import sys
 import numpy as np
 
 import lsst.sphgeom as sphgeom
+import lsst.geom as geom
 
 
 
-#print(sphgeom.Region.from_ivoa_pos("CIRCLE 53.076 -28.110 2.0"))
 
 
 
@@ -42,35 +46,14 @@ targets, other_args = parse_arguments(all_arguments)
 rsp_tap = open_tap_service()
 
 
-query = "SELECT * FROM tap_schema.schemas"
-results = rsp_tap.run_sync(query)
-results.to_table()
-print(results)
-
-exit()
 
 
-schema='dp1'
+### set up the butler
+butler_config = "dp1"
+butler_collections = "LSSTComCam/DP1"
 
-### make an LSST butler to get image data
-band = 'r'
-ra = 44
-dec = -2
-query = f"band.name = '{band}' AND visit_detector_region.region OVERLAPS POINT ({ra}, {dec})"
+butler = prepare_butler(butler_config, butler_collections)
 
-
-from lsst.daf.butler import Butler
-butler = Butler(
-    "dp02-remote",
-)
-
-
-exit()
-
-
-butler = prepare_butler()
-butler.get_dataset_type('visit_image')
-exit()
 
 ### query given coordinates
 
@@ -79,19 +62,38 @@ exit()
 
 
 
-query = "SELECT TOP 25 * FROM "+schema+".Object"
 
-results = rsp_tap.run_sync(query)
-output = results.to_table()
+## wrap this in a loop per object in monitoring list
 
-print(output)
+
+# this produces a list of visit images
+lsst_bands = list('ugrizy')
+
+all_data = []
+for band in lsst_bands:
+        
+    current_data = query_coordinates(
+        butler,
+        band,
+        ra,
+        dec,
+        time_start=time_start,
+        time_stop=time_stop,
+        cutout_size=cutout_size,
+        verbose=False
+    )
+
+    all_data.append(current_data)
+    
+
+
 
 
 # import sources from live_light_curves.source_list using some json interface
 # for each observation:
     # check if any coordinates in sources lay within FOV
-    # follow notebooks/tutorials/DP1/300_Science_Demos/307_AGN on RSP (gets cutout)
-# initialize live_light_curves.Classes.cutout for each cutout
+        # any which fall within the visit images will be selected
+    
 
 
 
