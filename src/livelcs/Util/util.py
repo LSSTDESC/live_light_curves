@@ -163,7 +163,7 @@ def prepare_configuration_file():
     # Lightcurver requires a valid config file to work. This function writes
     # the coordinates of lenses to the config file.
 
-    
+    pass
         
 
 def processed_stellar_cutouts():
