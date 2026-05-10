@@ -164,6 +164,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Fits files and temporary files
+# Fits files, data files, and temporary files
 *.fits
 *tmp.yaml
+*.h5py
