@@ -19,11 +19,11 @@
 
 #################################################### Import ############################################################
 # First, define the working directory where the files will be copied (after cropping, conversion, sky subtraction ...)
-workdir: ./LSST_data/reduced_data
+workdir: ./LSST_data/reduced_data/
 # Then, list directories in which we are to look for your images. (no securities in place for filtering
 # files that are not images)
 raw_dirs:
-  - ./LSST_data/raw_data
+  - ./LSST_data/raw_data/
 
 # importing only the files matching the pattern below:
 files_match_pattern: "*.fits"
@@ -51,6 +51,8 @@ multiprocessing_cpu_count: 1
 # the ROI will be extracted, and have flux calibrated cutouts prepared.
 # please keep the formatting the same.
 ROI:
+  Test_coords:
+    coordinates: [53.1125547, -27.6848222]
 ROI_size: 3.5  # in arcseconds, will not consider reference stars this close
 # the ROI also will be used as a position starting point for the plate solving.
 # frames that do not contain it (determined after plate solving) will not undergo further processing.

@@ -94,7 +94,7 @@ for jj in range(len(targets)):
 
     time_start = None #40587
     time_stop = None
-    cutout_size = 500
+    cutout_size = 1500
 
 
     current_position = []

@@ -198,31 +198,29 @@ def query_coords(
                     ra * u.deg,
                     dec * u.deg,
                 ):
+
+                    visit_image.writeFits(file_to_write)
+                    
                     this_image = visit_image.getCutout(
                         center = center_point,
                         size = extent
                     )
-                    print("prepares image")
                     image_metadata = this_image.getMetadata()
 
                     my_hdu = fits.PrimaryHDU(
                         data=asarray(this_image.image.array)
                     )
-                    print("makes fits object")
                     my_hdu.header['ra'] = ra
                     my_hdu.header['dec'] = dec
                     my_hdu.header['band'] = band
                     my_hdu.header['OBSTART'] = image_metadata['DATE-BEG']
                     my_hdu.header['GAIN'] = image_metadata['CCDGAIN']
                     my_hdu.header['EXPTIME'] = image_metadata['SHUTTIME']
-                    print("gets to band")
                     my_hdu.header['obs_time'] = this_image.getMetadata()["DATE"]
-                    print("so far so good")
-                    my_hdu.writeto(file_to_write)
-                    print("can write files")
+                    my_hdu.writeto(file_to_write[:5]+"alt.fits")
+
                     
-                    output_cutouts.append(this_image.image.array)
-                    print("appends image")
+                    #output_cutouts.append(this_image.image.array)
                 
 
         
