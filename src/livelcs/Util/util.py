@@ -201,23 +201,23 @@ def query_coords(
 
                     visit_image.writeFits(file_to_write)
                     
-                    this_image = visit_image.getCutout(
-                        center = center_point,
-                        size = extent
-                    )
-                    image_metadata = this_image.getMetadata()
+                    #this_image = visit_image.getCutout(
+                    #    center = center_point,
+                    #    size = extent
+                    #)
+                    #image_metadata = this_image.getMetadata()
 
-                    my_hdu = fits.PrimaryHDU(
-                        data=asarray(this_image.image.array)
-                    )
-                    my_hdu.header['ra'] = ra
-                    my_hdu.header['dec'] = dec
-                    my_hdu.header['band'] = band
-                    my_hdu.header['OBSTART'] = image_metadata['DATE-BEG']
-                    my_hdu.header['GAIN'] = image_metadata['CCDGAIN']
-                    my_hdu.header['EXPTIME'] = image_metadata['SHUTTIME']
-                    my_hdu.header['obs_time'] = this_image.getMetadata()["DATE"]
-                    my_hdu.writeto(file_to_write[:5]+"alt.fits")
+                    #my_hdu = fits.PrimaryHDU(
+                    #    data=asarray(this_image.image.array)
+                    #)
+                    #my_hdu.header['ra'] = ra
+                    #my_hdu.header['dec'] = dec
+                    #my_hdu.header['band'] = band
+                    #my_hdu.header['OBSTART'] = image_metadata['DATE-BEG']
+                    #my_hdu.header['GAIN'] = image_metadata['CCDGAIN']
+                    #my_hdu.header['EXPTIME'] = image_metadata['SHUTTIME']
+                    #my_hdu.header['obs_time'] = this_image.getMetadata()["DATE"]
+                    #my_hdu.writeto(file_to_write)
 
                     
                     #output_cutouts.append(this_image.image.array)
