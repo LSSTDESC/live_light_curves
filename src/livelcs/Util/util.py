@@ -214,7 +214,7 @@ def query_coords(
                     my_hdu.header['OBSTART'] = image_metadata['DATE-BEG']
                     my_hdu.header['EXPTIME'] = image_metadata['SHUTTIME']
                     my_hdu.header['GAIN'] = image_metadata['CCDGAIN']
-                    fits.writeto(file, my_data, my_header, overwrite=True)
+                    fits.writeto(file_to_write, my_data, my_header, overwrite=True)
                     
 
         
