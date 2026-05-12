@@ -201,7 +201,7 @@ def query_coords(
 
                     visit_image.writeFits(file_to_write)
 
-                    image_metadata = this_image.getMetadata()
+                    image_metadata = visit_image.getMetadata()
 
                     my_data, my_header = fits.getdata(file_to_write, header=True)
 
