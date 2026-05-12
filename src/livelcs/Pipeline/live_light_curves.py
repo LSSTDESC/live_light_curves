@@ -90,7 +90,7 @@ for jj in range(len(targets)):
 
     ra = targets[jj]['ra']
     dec = targets[jj]['dec']
-    lsst_bands = ['u'] #list('ugrizy')
+    lsst_bands = ['g'] #list('ugrizy')
 
     time_start = None #40587
     time_stop = None
