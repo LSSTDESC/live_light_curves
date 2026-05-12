@@ -218,9 +218,10 @@ def query_coords(
                     
 
         
-    except:
+    except Exception as expt:
         # this catches the failures when no images overlap with the
         # chosen coordinates
+        print(expt)
         if verbose:
             print("no visit images found matching given times and coordinates")
 
