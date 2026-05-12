@@ -208,10 +208,10 @@ def query_coords(
 
 
                     # Lightcurver needs some additional header info
-                    #my_header['PC1_1'] = my_header['CD1_1']
-                    #my_header['PC1_2'] = my_header['CD1_2']
-                    #my_header['PC2_1'] = my_header['CD2_1']
-                    #my_header['PC2_2'] = my_header['CD2_2']
+                    my_header['PC1_1'] = my_header['CD1_1']
+                    my_header['PC1_2'] = my_header['CD1_2']
+                    my_header['PC2_1'] = my_header['CD2_1']
+                    my_header['PC2_2'] = my_header['CD2_2']
                     my_header['OBSTART'] = image_metadata['DATE-BEG']
                     my_header['EXPTIME'] = image_metadata['SHUTTIME']
                     my_header['GAIN'] = image_metadata['CCDGAIN']
