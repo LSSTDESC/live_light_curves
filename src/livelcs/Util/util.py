@@ -193,13 +193,14 @@ def query_coords(
                 file_to_write = raw_dir+"/LSST"+str(visit_id)+".fits"
 
                 visit_image = butler.get(reference)
+                cutout = visit_image.getCutout(center=center_point, size=extent)
 
-                if visit_image.containsSkyCoords(
+                if cutout.containsSkyCoords(
                     ra * u.deg,
                     dec * u.deg,
                 ):
 
-                    visit_image.writeFits(file_to_write)
+                    cutout.writeFits(file_to_write)
 
                     image_metadata = visit_image.getMetadata()
 
@@ -207,10 +208,10 @@ def query_coords(
 
 
                     # Lightcurver needs some additional header info
-                    my_header['PC1_1'] = my_header['CD1_1']
-                    my_header['PC1_2'] = my_header['CD1_2']
-                    my_header['PC2_1'] = my_header['CD2_1']
-                    my_header['PC2_2'] = my_header['CD2_2']
+                    #my_header['PC1_1'] = my_header['CD1_1']
+                    #my_header['PC1_2'] = my_header['CD1_2']
+                    #my_header['PC2_1'] = my_header['CD2_1']
+                    #my_header['PC2_2'] = my_header['CD2_2']
                     my_header['OBSTART'] = image_metadata['DATE-BEG']
                     my_header['EXPTIME'] = image_metadata['SHUTTIME']
                     my_header['GAIN'] = image_metadata['CCDGAIN']
