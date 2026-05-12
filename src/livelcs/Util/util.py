@@ -167,7 +167,7 @@ def query_coords(
         print("querying with parameters:", bind_params)
     
     # store cutouts in a list
-    output_cutouts = []
+    #output_cutouts = []
 
     try:
         # this returns a list of all IDs associated with the query
@@ -181,11 +181,12 @@ def query_coords(
 
         for reference in dataset_references:
             visit_id = reference.dataId.get('visit')
+            
+            if verbose: # to be removed
+                print(raw_dir+"/LSST"+str(visit_id)+".fits")
+                print(path.isfile(raw_dir+"/LSST"+str(visit_id)+".fits"))
 
-            print(raw_dir+"/LSST"+str(visit_id)+".fits")
-            print(path.isfile(raw_dir+"/LSST"+str(visit_id)+".fits"))
-
-            if verbose:
+            if verbose: # to be kept
                 print(f"current id = {visit_id}")
 
             # only query if it's not in your raw directory
@@ -206,8 +207,7 @@ def query_coords(
 
                     my_data, my_header = fits.getdata(file_to_write, header=True)
 
-
-                    # Lightcurver needs some additional header info
+                    # Lightcurver needs some additional header info for Astropy.WCS
                     my_header['PC1_1'] = my_header['CD1_1']
                     my_header['PC1_2'] = my_header['CD1_2']
                     my_header['PC2_1'] = my_header['CD2_1']
@@ -222,11 +222,12 @@ def query_coords(
     except Exception as expt:
         # this catches the failures when no images overlap with the
         # chosen coordinates
-        print(expt)
         if verbose:
+            print(expt)
             print("no visit images found matching given times and coordinates")
 
-    return output_cutouts
+    #return output_cutouts
+    return None
 
 
 def make_temp_yaml_with_new_roi(targets, original_path, extension="_tmp"):
@@ -250,7 +251,7 @@ def make_temp_yaml_with_new_roi(targets, original_path, extension="_tmp"):
                 for target in targets:
                     new_text += f'  {target["name"]}:\n'
                     new_text += f'    coordinates: [{target["ra"]}, {target["dec"]}]\n'
-
+            # Do we include some dummy n image positions to the yaml file for n image objects?
     new_config_file = original_path[:-5]+extension+original_path[-5:]
 
     with open(new_config_file, 'w') as file:

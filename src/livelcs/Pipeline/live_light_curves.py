@@ -45,7 +45,7 @@ known_config_path = None
 config_path = find_lsst_config(known_config_path)
 
 
-# butler configuration
+# butler configuration, which needs to be updated as data releases come out
 butler_config = "dp1"
 butler_collections = "LSSTComCam/DP1"
 
@@ -90,10 +90,14 @@ for jj in range(len(targets)):
 
     ra = targets[jj]['ra']
     dec = targets[jj]['dec']
+
+    # this will be an input parameter
     lsst_bands = ['u'] #list('ugrizy')
 
     time_start = None #40587
     time_stop = None
+
+    # Using cutout does not work now. causes segmentation fault locally.
     cutout_size = 1200
 
 
@@ -112,8 +116,8 @@ for jj in range(len(targets)):
             verbose=True
         )
 
-        current_position.append(current_data)
-    all_data.append(current_position)
+        #current_position.append(current_data)
+    #all_data.append(current_position)
 
     
 for item in all_data:
