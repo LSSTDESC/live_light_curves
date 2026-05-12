@@ -193,14 +193,14 @@ def query_coords(
                 file_to_write = raw_dir+"/LSST"+str(visit_id)+".fits"
 
                 visit_image = butler.get(reference)
-                cutout = visit_image.getCutout(center=center_point, size=extent)
+                #cutout = visit_image.getCutout(center=center_point, size=extent)
 
-                if cutout.containsSkyCoords(
+                if visit_image.containsSkyCoords(
                     ra * u.deg,
                     dec * u.deg,
                 ):
 
-                    cutout.writeFits(file_to_write)
+                    visit_image.writeFits(file_to_write)
 
                     image_metadata = visit_image.getMetadata()
 
