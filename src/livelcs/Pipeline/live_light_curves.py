@@ -30,6 +30,7 @@ from lightcurver.processes.star_photometry import do_star_photometry
 import sys
 #import CCE/HME detection
 import numpy as np
+import tqdm
 
 import lsst.sphgeom as sphgeom
 #import lsst.geom as geom
@@ -83,7 +84,7 @@ butler = prepare_butler(butler_config, butler_collections)
 # not used?
 all_data = []
 
-for jj in range(len(targets)):
+for jj in tqdm.tqdm(range(len(targets))):
 
     ra = targets[jj]['ra']
     dec = targets[jj]['dec']
@@ -108,7 +109,7 @@ for jj in range(len(targets)):
 
     current_position = []
 
-    for time_interval in time_intervals:
+    for time_interval in tqdm.tqdm(time_intervals):
         for band in lsst_bands:
             query_coords(
                 butler,

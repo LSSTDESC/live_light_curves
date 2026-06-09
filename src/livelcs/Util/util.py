@@ -21,22 +21,22 @@ def parse_arguments(all_arguments=None):
         print("include the path to target coordinates as a json or csv file")
         print("these can be generated using the 'SLED_lenses.py' script provided")
 
-    elif list_of_targets[-4:] == 'json':
+    elif all_args["targets"][-4:] == 'json':
         import json
-        with open(list_of_targets, 'r') as f:
+        with open(all_args["targets"], 'r') as f:
             current_targets = json.load(f)
 
-    elif list_of_targets[-3:] == 'csv':
+    elif all_args["targets"][-3:] == 'csv':
         import csv
         current_targets = []
-        with open(list_of_targets, 'r') as f:
+        with open(all_args["targets"], 'r') as f:
             my_reader = csv.DictReader(f)
             for row in my_reader:
                 current_targets.append(row)
     else:
         print("list of objects not recognized. please provide a valid json or csv.")
         print("these can be generated using the 'SLED_lenses.py' script provided")
-        return list_of_targets, all_arguments
+        return all_args["targets"], all_arguments
     return current_targets, other_args
 
 def find_lsst_config(lsst_config_path=None):
@@ -200,7 +200,7 @@ def query_coords(
 
                     my_data, my_header = fits.getdata(file_to_write, header=True)
 
-                    # Lightcurver needs some additional header info for Astropy.WCS
+                    # Lightcurver needs some header info as keywords
                     my_header = check_header(my_header, image_metadata)
                     
                     fits.writeto(file_to_write, my_data, my_header, overwrite=True)
