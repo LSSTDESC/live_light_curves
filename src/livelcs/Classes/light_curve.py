@@ -30,9 +30,9 @@ class LightCurve():
             self, 
             data=None, 
             update_time=None
-        ):
+    ):
         if data is None:
-            self.data = {'time_last_updated': None}
+            self.data = {'time_last_updated': 40587}
         else:
             self.data = data
         if update_time is None:
