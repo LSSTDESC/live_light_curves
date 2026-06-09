@@ -309,23 +309,23 @@ def check_new_light_curve_data(new_data):
     return new_data_bands
         
 
-def load_light_curve(self, file_name, directory="./extracted_light_curves/", extension=".lc"):
-        # load the light curve from a file
-        import pickle
-        from livelcs.Classes.light_curve import LightCurve
-        import os
-        if os.path.isdir(directory) is False:
-            os.mkdir(directory)
-        if os.path.isfile(os.path.join(directory+file_name)+extension) is False:
-            blank_light_curve = LightCurve()
-            with open(os.path.join(directory+file_name)+extension, 'wb') as f:
-                pickle.dump(blank_light_curve)
-        with open(os.path.join(directory,file_name)+extension, 'rb') as f:
-            data_dict = pickle.load(f)
-        assert type(data_dict) == dict
-        if "time_last_updated" not in data_dict:
-            data_dict["time_last_updated"] = None
-        return LightCurve(**data_dict)
+def load_light_curve(file_name, directory="./extracted_light_curves/", extension=".lc"):
+    # load the light curve from a file
+    import pickle
+    from livelcs.Classes.light_curve import LightCurve
+    import os
+    if os.path.isdir(directory) is False:
+        os.mkdir(directory)
+    if os.path.isfile(os.path.join(directory+file_name)+extension) is False:
+        blank_light_curve = LightCurve()
+        with open(os.path.join(directory+file_name)+extension, 'wb') as f:
+            pickle.dump(blank_light_curve)
+    with open(os.path.join(directory,file_name)+extension, 'rb') as f:
+        data_dict = pickle.load(f)
+    assert type(data_dict) == dict
+    if "time_last_updated" not in data_dict:
+        data_dict["time_last_updated"] = None
+    return LightCurve(**data_dict)
 
 
 
