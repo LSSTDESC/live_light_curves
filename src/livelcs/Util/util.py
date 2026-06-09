@@ -232,6 +232,7 @@ def query_coords(
 def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
     """Lightcurver requires a configuration file with the region of interest
     input as the parameter ROI for each object"""
+    import os
     new_text = ''
     toggle_path_to_raw_data = False
     with open(original_path, 'r') as file:        
@@ -247,13 +248,18 @@ def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
             if current_line == 'ROI:\n':
                 new_text += f'  {target["name"]}:\n'
                 new_text += f'    coordinates: [{target["ra"]}, {target["dec"]}]\n'
-            # Do we include some dummy n image positions to the yaml file for n image objects?
-    new_config_file = original_path[:-5]+target["name"]+extension+original_path[-5:]
+            if current_line == "point_sources: #  'label: [ra, dec]'\n":
+                new_text += f'  A: [{ra}, {dec}]\n'
 
-    with open(new_config_file, 'w') as file:
+    tmp_yaml_path = os.path.dirname(original_path)+"/tmp_configs/"
+    if os.path.isdir(tmp_yaml_path) is False:
+        os.mkdir(tmp_yaml_path)
+    tmp_config_file_name = tmp_yaml_path+original_path.split("/")[-1][:-5]+"_"+target["name"]+".yaml"
+
+    with open(tmp_config_file_name, 'w') as file:
         file.write(new_text)
 
-    return new_config_file, raw_dir
+    return tmp_config_file_name, raw_dir
 
 
 def check_header(my_header, image_metadata):

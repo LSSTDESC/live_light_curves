@@ -51,8 +51,7 @@ multiprocessing_cpu_count: 1
 # the ROI will be extracted, and have flux calibrated cutouts prepared.
 # please keep the formatting the same.
 ROI:
-  Test_coords:
-    coordinates: [53.1125547, -27.6848222]
+
 ROI_size: 3.5  # in arcseconds, will not consider reference stars this close
 # the ROI also will be used as a position starting point for the plate solving.
 # frames that do not contain it (determined after plate solving) will not undergo further processing.
@@ -314,7 +313,6 @@ photometric_band: r_sdss
 # - decide if you want to further optimize the said background.
 do_ROI_model: false
 point_sources: #  'label: [ra, dec]'
-   A: [67.4001, -11.5872]
 
 # so, null or a path for this one (path either relative to workdir, or absolute path starting with /):
 starting_background: null
