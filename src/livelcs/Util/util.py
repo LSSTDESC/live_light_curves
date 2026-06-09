@@ -14,38 +14,43 @@ def parse_arguments(all_arguments=None):
     all_args.add_argument("targets", help="Path to the file containing the list of targets to monitor")
     all_args.add_argument("--other-args", nargs="*", help="Other arguments for the script")
     all_args.add_argument("--verbose", action="store_true", help="Print verbose output")
-    all_args.add_argument("--time_start", default=None, help="Start time for querying in MJD")
+    all_args.add_argument("--time_start", default=40587, help="Start time for querying in MJD")
     all_args.add_argument("--time_stop", default=None, help="Stop time for querying in MJD")
     all_args.add_argument("--cutout_size", default=100, help="Size of cutout in pixels")
     all_args.add_argument("--lsst_bands", default=list("ugrizy"), help="LSST bands to query")
     all_args.add_argument("--time_interval", default=50, help="Time interval for querying in MJD")
+    all_args.add_argument("--butler_config", default="dp1", help="Butler configuration to use")
+    all_args.add_argument("--butler_collections", default="LSSTComCam/DP1", help="Butler collections to use")
 
     my_args = all_args.parse_args(all_arguments)
     arg_dict = vars(my_args)
+    if type(arg_dict["lsst_bands"]) is str:
+        arg_dict["lsst_bands"] = list(arg_dict["lsst_bands"])
     print(arg_dict)
         
     if all_arguments is None:
         print("please provide a list or json of targets to monitor")
         print("include the path to target coordinates as a json or csv file")
         print("these can be generated using the 'SLED_lenses.py' script provided")
+        return None, {}
 
-    elif all_args["targets"][-4:] == 'json':
+    elif arg_dict["targets"][-4:] == 'json':
         import json
-        with open(all_args["targets"], 'r') as f:
+        with open(arg_dict["targets"], 'r') as f:
             current_targets = json.load(f)
 
-    elif all_args["targets"][-3:] == 'csv':
+    elif arg_dict["targets"][-3:] == 'csv':
         import csv
         current_targets = []
-        with open(all_args["targets"], 'r') as f:
+        with open(arg_dict["targets"], 'r') as f:
             my_reader = csv.DictReader(f)
             for row in my_reader:
                 current_targets.append(row)
     else:
-        print("list of objects not recognized. please provide a valid json or csv.")
+        print("list of objects not recognized. please provide a valid json or csv file.")
         print("these can be generated using the 'SLED_lenses.py' script provided")
-        return all_args["targets"], all_arguments
-    return current_targets, other_args
+        return arg_dict["targets"], all_arguments
+    return current_targets, arg_dict
 
 def find_lsst_config(lsst_config_path=None):
     '''tests a few likely paths for the LSST configuration file'''

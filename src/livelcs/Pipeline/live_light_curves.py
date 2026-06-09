@@ -46,9 +46,6 @@ known_config_path = None
 config_path = find_lsst_config(known_config_path)
 
 
-# butler configuration, which needs to be updated as data releases come out
-butler_config = "dp1"
-butler_collections = "LSSTComCam/DP1"
 
 
 
@@ -59,6 +56,10 @@ if len(sys.argv) == 0:
 all_arguments = sys.argv[1:]
 targets, other_args = parse_arguments(all_arguments)
 
+
+# butler configuration, which needs to be updated as data releases come out
+butler_config = other_args["butler_config"] # e.g. "dp1"
+butler_collections = other_args["butler_collections"] # e.g. "LSSTComCam/DP1"
 
 
 ### open up a tap service #######I think this is redundant
@@ -92,11 +93,11 @@ for jj in tqdm.tqdm(range(len(targets))):
     # this will be an input parameter
     lsst_bands = ['u'] #list('ugrizy')
 
-    time_start = None #40587
-    time_stop = None
+    time_start = other_args["time_start"] 
+    time_stop = other_args["time_stop"]
 
-    cutout_size = 100
-    time_interval = 50 # do we want to check in batches of time?
+    cutout_size = other_args["cutout_size"] # in pixels, so 100 means 100x100 cutouts
+    time_interval = other_args["time_interval"] # check in batches of time
 
     time_endpoints = np.linspace(time_start, time_stop, int((time_stop-time_start)/time_interval))
     time_intervals = [(time_endpoints[i], time_endpoints[i+1]) for i in range(len(time_endpoints)-1)]
