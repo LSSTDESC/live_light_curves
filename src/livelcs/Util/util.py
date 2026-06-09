@@ -134,17 +134,17 @@ def query_coords(
     from numpy import asarray
     if time_stop is None:
         time_stop = astro_time.now()
-    elif type(time_stop) is int or type(time_stop) is float:
+    elif type(time_stop) in [int, float]:
         if verbose:
             print("Assuming stop time is in MJD")
         time_stop = astro_time(time_stop, format="mjd", scale="tai")
-    if type(time_start) is int or type(time_start) is float:
+    if type(time_start) in [int, float]:
         if verbose:
             print("Assuming start time is in MJD")
         time_start = astro_time(time_start, format="mjd", scale="tai")
 
     # this is the time window to query in
-    print(time_start, time_stop)
+    print(type(time_start), type(time_stop))
     timespan = Timespan(time_start, time_stop)
 
     assert type(band) is str
