@@ -59,10 +59,6 @@ all_arguments = sys.argv[1:]
 targets, other_args = parse_arguments(all_arguments)
 
 
-### make temporary configuration file to place ROI at current objects
-this_config_file, raw_dir = make_temp_yaml_with_new_roi(targets, config_path)
-environ['LIGHTCURVER_CONFIG'] = this_config_file
-
 
 ### open up a tap service #######I think this is redundant
 # requires token to be stored on the machine
@@ -84,6 +80,7 @@ butler = prepare_butler(butler_config, butler_collections)
 
 
 # this produces a list of visit images
+# not used?
 all_data = []
 
 for jj in range(len(targets)):
@@ -97,24 +94,33 @@ for jj in range(len(targets)):
     time_start = None #40587
     time_stop = None
 
-    # Using cutout does not work now. causes segmentation fault locally.
-    cutout_size = 1200
+    cutout_size = 100
+    time_interval = 50 # do we want to check in batches of time?
+
+    time_endpoints = np.linspace(time_start, time_stop, int((time_stop-time_start)/time_interval))
+    time_intervals = [(time_endpoints[i], time_endpoints[i+1]) for i in range(len(time_endpoints)-1)]
+
+    ### make temporary configuration file to place ROI at current objects 
+    # Need new temp yaml file per target
+    this_config_file, raw_dir = make_temp_yaml_with_new_roi(targets[jj], config_path)
+    environ['LIGHTCURVER_CONFIG'] = this_config_file
 
 
     current_position = []
-    for band in lsst_bands:
-            
-        current_data = query_coords(
-            butler,
-            band,
-            ra,
-            dec,
-            raw_dir=raw_dir,
-            time_start=time_start,
-            time_stop=time_stop,
-            cutout_size=cutout_size,
-            verbose=True
-        )
+
+    for time_interval in time_intervals:
+        for band in lsst_bands:
+            query_coords(
+                butler,
+                band,
+                ra,
+                dec,
+                raw_dir=raw_dir,
+                time_start=time_interval[0],
+                time_stop=time_interval[1],
+                cutout_size=cutout_size,
+                verbose=True
+            )
 
         #current_position.append(current_data)
     #all_data.append(current_position)
