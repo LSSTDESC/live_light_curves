@@ -7,7 +7,8 @@ from livelcs.Util.util import (
     open_tap_service,
     prepare_butler,
     query_coords,
-    make_temp_yaml_with_new_roi
+    make_temp_yaml_with_new_roi,
+    load_light_curve
 )
 #from astropy.time import Time as astro_time
 import astropy.units as u
@@ -16,11 +17,17 @@ from lsst.daf.butler import (
     Butler
 )
 from lightcurver.structure.user_config import get_user_config
+from lightcurver.structure.database import initialize_database
+from lightcurver.pipeline.task_wrappers import read_convert_skysub_character_catalog
+from lightcurver.pipeline.task_wrappers import plate_solve_all_frames, calc_common_and_total_footprint_and_save
 from lightcurver.processes.star_querying import query_gaia_stars
 from lightcurver.processes.cutout_making import extract_all_stamps
 from lightcurver.processes.psf_modelling import model_all_psfs
 from lightcurver.processes.normalization_calculation import calculate_coefficient
 from lightcurver.processes.star_photometry import do_star_photometry
+from lightcurver.processes.absolute_zeropoint_calculation import calculate_zeropoints
+from lightcurver.processes.roi_file_preparation import prepare_roi_file
+from lightcurver.processes.roi_modelling import do_modelling_of_roi
 #import Starred
 #import PYCS
 #import pyvo
@@ -93,7 +100,12 @@ for jj in tqdm.tqdm(range(len(targets))):
     # this will be an input parameter
     lsst_bands = ['u'] #list('ugrizy')
 
-    time_start = float(other_args["time_start"])
+    light_curve = load_light_curve(targets[jj]['name'])
+
+    if other_args["redo_light_curve"]:
+        time_start = float(other_args["time_start"])
+    else:
+        time_start = float(light_curve["time_last_updated"])
     time_stop = float(other_args["time_stop"])
 
     cutout_size = int(other_args["cutout_size"]) # in pixels, so 100 means 100x100 cutouts
@@ -104,16 +116,15 @@ for jj in tqdm.tqdm(range(len(targets))):
 
     ### make temporary configuration file to place ROI at current objects 
     # Need new temp yaml file per target
-    print(targets[jj])
     this_config_file, raw_dir = make_temp_yaml_with_new_roi(targets[jj], config_path)
     environ['LIGHTCURVER_CONFIG'] = this_config_file
-
 
     current_position = []
 
     for time_interval in tqdm.tqdm(time_intervals):
         for band in lsst_bands:
-            query_coords(
+            # Get all frames within a given time interval from Butler
+            written_files = query_coords(
                 butler,
                 band,
                 ra,
@@ -125,8 +136,23 @@ for jj in tqdm.tqdm(range(len(targets))):
                 verbose=True
             )
 
-        #current_position.append(current_data)
-    #all_data.append(current_position)
+            # Lightcurver requires this main wrapper on some systems.
+            if __name__ == '__main__':
+                get_user_config()
+                initialize_database()
+                read_convert_skysub_character_catalog()
+                plate_solve_all_frames() 
+                calc_common_and_total_footprint_and_save()
+                query_gaia_stars()
+                extract_all_stamps()
+                model_all_psfs()
+                do_star_photometry()
+                calculate_coefficient()
+                calculate_zeropoints()
+                prepare_roi_file()
+                do_modelling_of_roi()   
+
+
 
     
 for item in all_data:

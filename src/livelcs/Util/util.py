@@ -21,6 +21,7 @@ def parse_arguments(all_arguments=None):
     all_args.add_argument("--time_interval", default=50, help="Time interval for querying in MJD")
     all_args.add_argument("--butler_config", default="dp1", help="Butler configuration to use")
     all_args.add_argument("--butler_collections", default="LSSTComCam/DP1", help="Butler collections to use")
+    all_args.add_argument("--time_last_updated", default=False, help="flag to recalculate light curve instead of appending")
 
     my_args = all_args.parse_args(all_arguments)
     arg_dict = vars(my_args)
@@ -177,6 +178,9 @@ def query_coords(
         "dec": dec,
         "timespan": timespan
     }
+
+    written_files = []
+
     if verbose:
         print("querying with parameters:", bind_params)
     try:
@@ -217,7 +221,8 @@ def query_coords(
                     my_header = check_header(my_header, image_metadata)
                     
                     fits.writeto(file_to_write, my_data, my_header, overwrite=True)
-                
+                    written_files.append(file_to_write)
+
     except Exception as expt:
         # this catches the failures when no images overlap with the
         # chosen coordinates
@@ -226,7 +231,7 @@ def query_coords(
             print("no visit images found matching given times and coordinates")
 
     #return output_cutouts
-    return None
+    return written_files
 
 
 def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
@@ -304,16 +309,22 @@ def check_new_light_curve_data(new_data):
     return new_data_bands
         
 
-def load_light_curve(self, file_name, extension=".lc"):
+def load_light_curve(self, file_name, directory="./extracted_light_curves/", extension=".lc"):
         # load the light curve from a file
         import pickle
         from livelcs.Classes.light_curve import LightCurve
-        with open(file_name, 'rb') as f:
+        import os
+        if os.path.isdir(directory) is False:
+            os.mkdir(directory)
+        if os.path.isfile(os.path.join(directory+file_name)+extension) is False:
+            blank_light_curve = LightCurve()
+            with open(os.path.join(directory+file_name)+extension, 'wb') as f:
+                pickle.dump(blank_light_curve)
+        with open(os.path.join(directory,file_name)+extension, 'rb') as f:
             data_dict = pickle.load(f)
         assert type(data_dict) == dict
         if "time_last_updated" not in data_dict:
             data_dict["time_last_updated"] = None
-            return None
         return LightCurve(**data_dict)
 
 
