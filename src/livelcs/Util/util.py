@@ -319,7 +319,7 @@ def load_light_curve(file_name, directory="./extracted_light_curves/", extension
     if os.path.isfile(os.path.join(directory+file_name)+extension) is False:
         blank_light_curve = LightCurve()
         with open(os.path.join(directory+file_name)+extension, 'wb') as f:
-            pickle.dump(blank_light_curve)
+            pickle.dump(blank_light_curve, f)
     with open(os.path.join(directory,file_name)+extension, 'rb') as f:
         data_dict = pickle.load(f)
     assert type(data_dict) == dict
