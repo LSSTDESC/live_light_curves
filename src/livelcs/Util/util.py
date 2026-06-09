@@ -322,6 +322,7 @@ def load_light_curve(file_name, directory="./extracted_light_curves/", extension
             pickle.dump(blank_light_curve, f)
     with open(os.path.join(directory,file_name)+extension, 'rb') as f:
         data_dict = pickle.load(f)
+    print(data_dict)
     assert type(data_dict) == dict
     if "time_last_updated" not in data_dict:
         data_dict["time_last_updated"] = None
