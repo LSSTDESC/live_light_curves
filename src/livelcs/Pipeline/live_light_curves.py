@@ -107,7 +107,10 @@ for jj in tqdm.tqdm(range(len(targets))):
     if other_args["redo_light_curve"]:
         time_start = float(other_args["time_start"])
     else:
-        time_start = float(light_curve.data["time_last_updated"])
+        if light_curve.data["time_last_updated"] is not None:
+            time_start = float(light_curve.data["time_last_updated"])
+        else:
+            time_start = None
     time_stop = float(other_args["time_stop"])
 
     cutout_size = int(other_args["cutout_size"]) # in pixels, so 100 means 100x100 cutouts
