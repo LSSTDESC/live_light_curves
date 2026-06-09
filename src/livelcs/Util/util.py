@@ -80,24 +80,24 @@ def find_lsst_config(lsst_config_path=None):
     else:
         print("Error finding LSST configuration file.")
 
-
-def open_tap_service(
-    home_directory='~',
-    rsp_tap_token_filename='.rsp-tap.token',
-):
-    '''opens the RSP TAP service. REDUNDANT?'''
-    import pyvo
-    import os 
-    RSP_TAP_SERVICE = 'https://data.lsst.cloud/api/tap'
-    homedir = os.path.expanduser(home_directory)
-    token_file = os.path.join(homedir, rsp_tap_token_filename)
-    with open(token_file, 'r') as f:
-        token_str = f.readline()
-    cred = pyvo.auth.CredentialStore()
-    cred.set_password("x-oauth-basic", token_str)
-    credential = cred.get("ivo://ivoa.net/sso#BasicAA")
-    rsp_tap = pyvo.dal.TAPService(RSP_TAP_SERVICE, session=credential)
-    return rsp_tap
+# Checking for redundacy
+#def open_tap_service(
+#    home_directory='~',
+#    rsp_tap_token_filename='.rsp-tap.token',
+#):
+#    '''opens the RSP TAP service. REDUNDANT?'''
+#    import pyvo
+#    import os 
+#    RSP_TAP_SERVICE = 'https://data.lsst.cloud/api/tap'
+#    homedir = os.path.expanduser(home_directory)
+#    token_file = os.path.join(homedir, rsp_tap_token_filename)
+#    with open(token_file, 'r') as f:
+#        token_str = f.readline()
+#    cred = pyvo.auth.CredentialStore()
+#    cred.set_password("x-oauth-basic", token_str)
+#    credential = cred.get("ivo://ivoa.net/sso#BasicAA")
+#    rsp_tap = pyvo.dal.TAPService(RSP_TAP_SERVICE, session=credential)
+#    return rsp_tap
 
 
 def prepare_butler(
@@ -278,11 +278,12 @@ def check_header(my_header, image_metadata):
     my_header['GAIN'] = image_metadata['CCDGAIN']
     return my_header
 
-def build_directory_structure_for_lightcurver(base_dir="./"):
-    # this is the directory structure that lightcurver expects for its configuration file
-    from lightcurver.structure.database import initialize_databse
-    initialize_databse(db_path=base_dir)
-    return None
+## initialize_database already does this. No need for another function to wrap it
+#def build_directory_structure_for_lightcurver(base_dir="./"):
+#    # this is the directory structure that lightcurver expects for its configuration file
+#    from lightcurver.structure.database import initialize_databse
+#    initialize_databse(db_path=base_dir)
+#    return None
 
 
 

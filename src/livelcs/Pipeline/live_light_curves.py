@@ -99,7 +99,7 @@ for jj in tqdm.tqdm(range(len(targets))):
     dec = targets[jj]['dec']
 
     # this will be an input parameter
-    lsst_bands = ['u'] #list('ugrizy')
+    lsst_bands = other_args["lsst_bands"]
 
     print(targets[jj]['name'])
 
