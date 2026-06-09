@@ -15,6 +15,9 @@ def parse_arguments(all_arguments=None):
     all_args.add_argument("--other-args", nargs="*", help="Other arguments for the script")
     all_args.add_argument("--verbose", action="store_true", help="Print verbose output")
 
+    my_args = all_args.parse_args(all_arguments)
+    arg_dict = vars(my_args)
+    print(arg_dict)
         
     if all_arguments is None:
         print("please provide a list or json of targets to monitor")
