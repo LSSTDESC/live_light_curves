@@ -28,16 +28,17 @@ class LightCurve():
     """
     def __init__(
             self, 
-            time_last_updated=None, 
             data=None, 
             update_time=None
         ):
-        self.time_last_updated = time_last_updated
         if data is None:
-            self.data = None
+            self.data = {'time_last_updated': None}
         else:
             self.data = data
-        self.update_time = update_time
+        if update_time is None:
+            self.time_last_updated = self.data['time_last_updated']
+        else:
+            self.time_last_updated = update_time
 
     def save_light_curve(self, file_name, extension=".lc"):
         # save the light curve to a file
