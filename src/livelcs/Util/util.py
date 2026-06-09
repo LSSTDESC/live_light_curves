@@ -131,20 +131,19 @@ def query_coords(
     from os import path
     import lsst.geom as geom
     import astropy.units as u
-    from numpy import asarray
+    from numpy import asarray, float64
     if time_stop is None:
         time_stop = astro_time.now()
-    elif type(time_stop) in [int, float]:
+    elif type(time_stop) in [int, float, float64]:
         if verbose:
             print("Assuming stop time is in MJD")
         time_stop = astro_time(time_stop, format="mjd", scale="tai")
-    if type(time_start) in [int, float]:
+    if type(time_start) in [int, float, float64]:
         if verbose:
             print("Assuming start time is in MJD")
         time_start = astro_time(time_start, format="mjd", scale="tai")
 
     # this is the time window to query in
-    print(type(time_start), type(time_stop))
     timespan = Timespan(time_start, time_stop)
 
     assert type(band) is str
