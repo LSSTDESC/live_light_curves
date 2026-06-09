@@ -248,7 +248,7 @@ def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
                 new_text += f'  {target["name"]}:\n'
                 new_text += f'    coordinates: [{target["ra"]}, {target["dec"]}]\n'
             # Do we include some dummy n image positions to the yaml file for n image objects?
-    new_config_file = original_path[:-5]+target+extension+original_path[-5:]
+    new_config_file = original_path[:-5]+target["name"]+extension+original_path[-5:]
 
     with open(new_config_file, 'w') as file:
         file.write(new_text)
