@@ -1,6 +1,6 @@
 """Class that holds the light curves as they are being constructed"""
 
-class LightCurve(time_last_updated=None, data=None, update_time=None):
+class LightCurve():
     """LightCurve and data should be dictionaries. The format should be 
     such that:
     data = {
@@ -26,8 +26,12 @@ class LightCurve(time_last_updated=None, data=None, update_time=None):
     }
     time_last_updated and update_time is in MJD.
     """
-    #def __init__(self, time_last_updated, data, update_time):
-    def __init__(self):
+    def __init__(
+            self, 
+            time_last_updated=None, 
+            data=None, 
+            update_time=None
+        ):
         self.time_last_updated = time_last_updated
         if data is None:
             self.data = None

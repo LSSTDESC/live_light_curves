@@ -100,6 +100,8 @@ for jj in tqdm.tqdm(range(len(targets))):
     # this will be an input parameter
     lsst_bands = ['u'] #list('ugrizy')
 
+    print(targets[jj]['name'])
+
     light_curve = load_light_curve(targets[jj]['name'])
 
     if other_args["redo_light_curve"]:
