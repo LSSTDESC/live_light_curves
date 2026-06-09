@@ -26,6 +26,7 @@ class LightCurve(time_last_updated=None, data=None, update_time=None):
     }
     time_last_updated and update_time is in MJD.
     """
+    #def __init__(self, time_last_updated, data, update_time):
     def __init__(self):
         self.time_last_updated = time_last_updated
         if data is None:
