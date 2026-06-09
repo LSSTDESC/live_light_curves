@@ -8,7 +8,8 @@ from livelcs.Util.util import (
     prepare_butler,
     query_coords,
     make_temp_yaml_with_new_roi,
-    load_light_curve
+    load_light_curve, 
+    clean_directory_structure_for_lightcurver
 )
 #from astropy.time import Time as astro_time
 import astropy.units as u
@@ -160,6 +161,7 @@ for jj in tqdm.tqdm(range(len(targets))):
                     prepare_roi_file()
                     do_modelling_of_roi()
 
+                    clean_directory_structure_for_lightcurver()
 
 
     
