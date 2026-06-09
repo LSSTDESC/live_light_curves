@@ -14,7 +14,7 @@ def parse_arguments(all_arguments=None):
     all_args.add_argument("targets", help="Path to the file containing the list of targets to monitor")
     all_args.add_argument("--other-args", nargs="*", help="Other arguments for the script")
     all_args.add_argument("--verbose", action="store_true", help="Print verbose output")
-    all_args.add_argument("--time_start", default=40587, help="Start time for querying in MJD")
+    all_args.add_argument("--time_start", default=float(40587), help="Start time for querying in MJD")
     all_args.add_argument("--time_stop", default=None, help="Stop time for querying in MJD")
     all_args.add_argument("--cutout_size", default=100, help="Size of cutout in pixels")
     all_args.add_argument("--lsst_bands", default=list("ugrizy"), help="LSST bands to query")
@@ -144,6 +144,7 @@ def query_coords(
         time_start = astro_time(time_start, format="mjd", scale="tai")
 
     # this is the time window to query in
+    print(time_start, time_stop)
     timespan = Timespan(time_start, time_stop)
 
     assert type(band) is str
