@@ -93,11 +93,11 @@ for jj in tqdm.tqdm(range(len(targets))):
     # this will be an input parameter
     lsst_bands = ['u'] #list('ugrizy')
 
-    time_start = other_args["time_start"] 
-    time_stop = other_args["time_stop"]
+    time_start = int(other_args["time_start"])
+    time_stop = int(other_args["time_stop"])
 
-    cutout_size = other_args["cutout_size"] # in pixels, so 100 means 100x100 cutouts
-    time_interval = other_args["time_interval"] # check in batches of time
+    cutout_size = int(other_args["cutout_size"]) # in pixels, so 100 means 100x100 cutouts
+    time_interval = int(other_args["time_interval"]) # check in batches of time
 
     time_endpoints = np.linspace(time_start, time_stop, int((time_stop-time_start)/time_interval))
     time_intervals = [(time_endpoints[i], time_endpoints[i+1]) for i in range(len(time_endpoints)-1)]
