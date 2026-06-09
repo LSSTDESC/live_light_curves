@@ -21,7 +21,7 @@ def parse_arguments(all_arguments=None):
     all_args.add_argument("--time_interval", default=50, help="Time interval for querying in MJD")
     all_args.add_argument("--butler_config", default="dp1", help="Butler configuration to use")
     all_args.add_argument("--butler_collections", default="LSSTComCam/DP1", help="Butler collections to use")
-    all_args.add_argument("--time_last_updated", default=False, help="flag to recalculate light curve instead of appending")
+    all_args.add_argument("--redo_light_curve", default=False, help="flag to recalculate light curve instead of appending")
 
     my_args = all_args.parse_args(all_arguments)
     arg_dict = vars(my_args)
