@@ -2,7 +2,7 @@
 
 
 
-class StellarPhotometry():
+class StellarPhotometry:
     """as above"""
     def __init__(self):
         pass

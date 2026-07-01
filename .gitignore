@@ -168,3 +168,5 @@ cython_debug/
 *.fits
 *tmp.yaml
 *.h5py
+*.h5
+*.lc

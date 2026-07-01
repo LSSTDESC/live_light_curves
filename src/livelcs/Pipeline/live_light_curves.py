@@ -12,7 +12,7 @@ from livelcs.Util.util import (
     clean_directory_structure_for_lightcurver
 )
 #from astropy.time import Time as astro_time
-import astropy.units as u
+#import astropy.units as u
 from lsst.daf.butler import (
     Timespan,
     Butler
@@ -32,37 +32,33 @@ from lightcurver.processes.roi_modelling import do_modelling_of_roi
 #import Starred
 #import PYCS
 #import pyvo
-#import os
 #import subprocess
 #import argparse
-import sys
 #import CCE/HME detection
-import numpy as np
+from numpy import linspace
 import tqdm
 
-import lsst.sphgeom as sphgeom
+#import lsst.sphgeom as sphgeom
 #import lsst.geom as geom
 
 # We need access to the environmental variables because that's where the lightcurver config is stored
 from os import environ
-from os import path
-
-
-# Include a string of the file path to the config_LSST file if not automatically detected.
-# Note that it must be named "config_LSST.yaml"
-known_config_path = None 
-config_path = find_lsst_config(known_config_path)
-
-
+#from os import path
 
 
 
 ### read in file of coordinates
 # the targets parameter holds a dictionary of all objects in the provided file
-if len(sys.argv) == 0:
+if len(sys.argv) == 1:
     print("please provide a file holding a list of objects when calling this script")
 all_arguments = sys.argv[1:]
 targets, other_args = parse_arguments(all_arguments)
+
+
+# Include a string of the file path to the config_LSST file if not automatically detected.
+# Note that it must be named "config_LSST.yaml"
+known_config_path = other_args["known_lightcurver_config_path"] 
+config_path = find_lsst_config(known_config_path)
 
 
 # butler configuration, which needs to be updated as data releases come out
@@ -70,27 +66,12 @@ butler_config = other_args["butler_config"] # e.g. "dp1"
 butler_collections = other_args["butler_collections"] # e.g. "LSSTComCam/DP1"
 
 
-### open up a tap service #######I think this is redundant
-# requires token to be stored on the machine
-#rsp_tap = open_tap_service() 
-
-
 ### set up the butler, store your RSP token as envirionment variable "ACCESS_TOKEN" 
 butler = prepare_butler(butler_config, butler_collections)
 
 
 ### query given coordinates
-
-# we now have the coordinates for object [ii] defined as
-# (targets[ii]['ra'], targets[ii]['dec'])
-
-
-
-## wrap this in a loop per object in monitoring list
-
-
 # this produces a list of visit images
-# not used?
 all_data = []
 
 for jj in tqdm.tqdm(range(len(targets))):
@@ -117,8 +98,8 @@ for jj in tqdm.tqdm(range(len(targets))):
     cutout_size = int(other_args["cutout_size"]) # in pixels, so 100 means 100x100 cutouts
     time_interval = float(other_args["time_interval"]) # check in batches of time
 
-    time_endpoints = np.linspace(time_start, time_stop, int((time_stop-time_start)/time_interval))
-    time_intervals = [(time_endpoints[i], time_endpoints[i+1]) for i in range(len(time_endpoints)-1)]
+    time_endpoints = linspace(time_start, time_stop, int((time_stop-time_start)/time_interval))
+    time_intervals = [(time_endpoints[ii], time_endpoints[ii+1]) for ii in range(len(time_endpoints)-1)]
 
     ### make temporary configuration file to place ROI at current objects 
     # Need new temp yaml file per target
@@ -142,7 +123,6 @@ for jj in tqdm.tqdm(range(len(targets))):
                 verbose=True
             )
 
-
             if len(written_files) > 0:
 
                 # Lightcurver requires this main wrapper on some systems.
@@ -161,7 +141,10 @@ for jj in tqdm.tqdm(range(len(targets))):
                     prepare_roi_file()
                     do_modelling_of_roi()
 
-                    clean_directory_structure_for_lightcurver()
+                    clean_directory_structure_for_lightcurver(
+                        base_dir=other_args["base_working_directory"],
+                        blacklist_dirs=other_args["blacklist_dirs"]
+                    )
 
 
     

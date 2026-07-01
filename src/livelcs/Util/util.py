@@ -1,9 +1,22 @@
 '''utility file'''
 
 def parse_arguments(all_arguments=None):
-    '''this function takes the list of arguments provided and generates a
-    dictionary from them if possible'''
+    '''this function takes the list of arguments provided in the command line and generates a
+    dictionary from them if possible. 
+    targets: a json or csv containing the list of all relevant targets to be used to generate a pd.DataFrame object
+    --verbose: Add to provide additional verbose information
+    --time_start: time in MJD to query Butler. Must be greater than 40587 (Jan 1, 1970)
+    --time_stop: time in MJD to query Butler. Must be greater than 40587
+    --cutout_size: pixel size of the cutouts to produce
+    --lsst_bands: series of bands to use
+    --time_interval: number of days to query Butler between time_start and time_stop. Larger value means fewer queries.
+    --butler_config: string defining butler configuration
+    --butler_collections: strong defining which collections to query
+    --redo_light_curve: Bool to reconstruct light curves. Will overwrite lightcurve data!
+    return: list of dictionaries for each target, dictionary containing configuration from command line arguments
+    '''
     import argparse
+    import pandas as pd
 
     if all_arguments == []:
         return None, []
@@ -11,50 +24,49 @@ def parse_arguments(all_arguments=None):
     all_args = argparse.ArgumentParser(
         description="This script takes a list of objects to monitor and queries the LSST data for new visit images containing those objects. It then processes the images and updates the light curves for those objects."
     )
-    all_args.add_argument("targets", help="Path to the file containing the list of targets to monitor")
-    all_args.add_argument("--other-args", nargs="*", help="Other arguments for the script")
-    all_args.add_argument("--verbose", action="store_true", help="Print verbose output")
-    all_args.add_argument("--time_start", default=float(40587), help="Start time for querying in MJD")
-    all_args.add_argument("--time_stop", default=None, help="Stop time for querying in MJD")
-    all_args.add_argument("--cutout_size", default=100, help="Size of cutout in pixels")
+    all_args.add_argument("--targets", default=None, help="Path to the file containing the list of targets to monitor")
+    all_args.add_argument("--verbose", action="store_true", help="Print extra output")
+    all_args.add_argument("--time_start", default=float(40587), help="Start time in MJD for querying Butler, any known light curves will default to their latest time")
+    all_args.add_argument("--time_stop", default=None, help="Stop time in MJD for querying Butler, will default to current date if not provided")
+    all_args.add_argument("--cutout_size", default=100, help="Size of cutouts in pixels")
     all_args.add_argument("--lsst_bands", default=list("ugrizy"), help="LSST bands to query")
-    all_args.add_argument("--time_interval", default=50, help="Time interval for querying in MJD")
+    all_args.add_argument("--time_interval", default=50, help="Time interval in MJD for querying Butler")
     all_args.add_argument("--butler_config", default="dp1", help="Butler configuration to use")
     all_args.add_argument("--butler_collections", default="LSSTComCam/DP1", help="Butler collections to use")
-    all_args.add_argument("--redo_light_curve", default=False, help="flag to recalculate light curve instead of appending")
+    all_args.add_argument("--redo_light_curve", default=False, help="flag to recalculate full light curve instead of appending")
+    all_args.add_argument("--known_lightcurver_config_path", default=None, help="path to the template lightcurver configuration path")
+    all_args.add_argument("--base_working_directory", default='./LSST_data', help="path to directory where Lightcurver works in")
+    all_args.add_argument("--blacklist_dirs", default=[], help="list of directories to not clean")
 
-    my_args = all_args.parse_args(all_arguments)
-    arg_dict = vars(my_args)
-    if type(arg_dict["lsst_bands"]) is str:
-        arg_dict["lsst_bands"] = list(arg_dict["lsst_bands"])
-    print(arg_dict)
-        
     if all_arguments is None:
         print("please provide a list or json of targets to monitor")
         print("include the path to target coordinates as a json or csv file")
         print("these can be generated using the 'SLED_lenses.py' script provided")
         return None, {}
 
-    elif arg_dict["targets"][-4:] == 'json':
-        import json
-        with open(arg_dict["targets"], 'r') as f:
-            current_targets = json.load(f)
+    my_args = all_args.parse_args(all_arguments)
+    arg_dict = vars(my_args)
+    if type(arg_dict["lsst_bands"]) is str:
+        arg_dict["lsst_bands"] = list(arg_dict["lsst_bands"])
+        
+    if arg_dict["targets"][-4:] == 'json':
+        current_targets = pd.read_json(arg_dict["targets"])
 
     elif arg_dict["targets"][-3:] == 'csv':
-        import csv
-        current_targets = []
-        with open(arg_dict["targets"], 'r') as f:
-            my_reader = csv.DictReader(f)
-            for row in my_reader:
-                current_targets.append(row)
+        current_targets = pd.read_csv(arg_dict["targets"])
+
     else:
+        print(arg_dict)
         print("list of objects not recognized. please provide a valid json or csv file.")
         print("these can be generated using the 'SLED_lenses.py' script provided")
-        return arg_dict["targets"], all_arguments
+        return arg_dict["targets"], arg_dict
     return current_targets, arg_dict
 
 def find_lsst_config(lsst_config_path=None):
-    '''tests a few likely paths for the LSST configuration file'''
+    '''tests a few likely paths for the LSST configuration file
+    lsst_config_path: path to search for the template LSST configuration file for Lightcurver
+    return discovered configuration path
+    '''
     from os import path
     if lsst_config_path is not None:
         if path.isfile(lsst_config_path):
@@ -77,34 +89,21 @@ def find_lsst_config(lsst_config_path=None):
                 break
     if config_path:
         return config_path
-    else:
+    else: #pragma: no cover 
+        # do not cover because we don't want to delete file for testing
         print("Error finding LSST configuration file.")
-
-# Checking for redundacy
-#def open_tap_service(
-#    home_directory='~',
-#    rsp_tap_token_filename='.rsp-tap.token',
-#):
-#    '''opens the RSP TAP service. REDUNDANT?'''
-#    import pyvo
-#    import os 
-#    RSP_TAP_SERVICE = 'https://data.lsst.cloud/api/tap'
-#    homedir = os.path.expanduser(home_directory)
-#    token_file = os.path.join(homedir, rsp_tap_token_filename)
-#    with open(token_file, 'r') as f:
-#        token_str = f.readline()
-#    cred = pyvo.auth.CredentialStore()
-#    cred.set_password("x-oauth-basic", token_str)
-#    credential = cred.get("ivo://ivoa.net/sso#BasicAA")
-#    rsp_tap = pyvo.dal.TAPService(RSP_TAP_SERVICE, session=credential)
-#    return rsp_tap
+        return None
 
 
 def prepare_butler(
     configuration='dp1',
     collections='LSSTComCam/DP1'
 ):
-    '''prepare the lsst Butler required to get image data'''
+    '''prepare the lsst Butler required to get image data
+    configuration: Butler configuration string
+    collections: Butler collections string
+    return: Butler class object
+    '''
     from lsst.daf.butler import Butler
     try:
         butler = Butler(configuration, collections=collections)
@@ -125,7 +124,18 @@ def query_coords(
     cutout_size=100,
     verbose=False
 ):
-    '''checks a given set of coordinates if there is a new visit image'''
+    '''checks a given set of coordinates if there is a new visit image
+    butler: Butler class object used to query LSST images
+    band: LSST band to query
+    ra: right ascension in deg to query Butler at
+    dec: declination in deg to query Butler at
+    raw_dir: directory to write the raw files in
+    time_start: date in MJD to start querying 
+    time_end: date in MJD to end querying
+    cutout_size: pixel size of the output
+    verbose: Bool to print information about the querying process
+    return: list of written files
+    '''
     from astropy.time import Time as astro_time
     from astropy.io import fits
     from lsst.daf.butler import Timespan
@@ -154,8 +164,9 @@ def query_coords(
     if type(ra) is str: ra = float(ra)
     if type(dec) is str: dec = float(dec)
 
+    # check provided bands are LSST bands. Update this in the future for flexibility to other surveys.
     if band not in list("ugrizy"):
-        print("only lsst bands of 'u', 'g', 'r', 'i', 'z', 'y' are accepted now")
+        print("only lsst bands labeled 'u', 'g', 'r', 'i', 'z', 'y' are accepted at this time")
         return None
     
     # These are required to make sure the coordinates are actually
@@ -180,7 +191,6 @@ def query_coords(
     }
 
     written_files = []
-
     if verbose:
         print("querying with parameters:", bind_params)
     try:
@@ -196,7 +206,8 @@ def query_coords(
         for reference in dataset_references:
             visit_id = reference.dataId.get('visit')
             
-            if verbose: # to be kept
+            # print visit ids if verbose
+            if verbose: 
                 print(f"current id = {visit_id}")
 
             # only query if it's not in your raw directory
@@ -210,22 +221,20 @@ def query_coords(
                     ra * u.deg,
                     dec * u.deg,
                 ):
-
+                    # Write the visit image to a fits file for processing
                     visit_image.writeFits(file_to_write)
-
+                    # collect additional metadata
                     image_metadata = visit_image.getMetadata()
-
+                    # add metadata required for Lightcurver as keywords
                     my_data, my_header = fits.getdata(file_to_write, header=True)
-
-                    # Lightcurver needs some header info as keywords
                     my_header = check_header(my_header, image_metadata)
-                    
+                    # rewrite the file with extra metadata
                     fits.writeto(file_to_write, my_data, my_header, overwrite=True)
+                    # add the file to a list
                     written_files.append(file_to_write)
 
     except Exception as expt:
-        # this catches the failures when no images overlap with the
-        # chosen coordinates
+        # this catches the failures when no images overlap with the chosen coordinates for a given time
         if verbose:
             print(expt)
             print("no visit images found matching given times and coordinates")
@@ -233,11 +242,39 @@ def query_coords(
     #return output_cutouts
     return written_files
 
+def extract_ra_dec_target_string(input_dataframe):
+    """Take an input dataframe with one row that has columns 'name', 'ra', 'dec' and return extracted values
+    input_dataframe: pd.DataFrame object with a single row
+    return: tuple with types 
+        (
+            str: name,
+            float: ra,
+            float: dec
+        )
+    """
+    import pandas as pd
+    if type(input_dataframe) is not pd.DataFrame:
+        print("please provide a pd.DataFrame object")
+        return None
+    ra = float(input_dataframe["ra"].values[0])
+    dec = float(input_dataframe["dec"].values[0])
+    target_string = str(input_dataframe["name"].values[0])
+    return target_string, ra, dec
+
 
 def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
     """Lightcurver requires a configuration file with the region of interest
-    input as the parameter ROI for each object"""
+    input as the parameter ROI for each object
+    target: pd.DataFrame contianing information about the targeted object. Must contain "name", "ra", "dec" keys.
+    original_path: path to the template LSST config file
+    extension: additional extension to add to the file name
+    return: newly generated temporary configuartion file name, directory for the raw files
+    """
     import os
+    import pandas as pd
+
+    target_string, ra, dec = extract_ra_dec_target_string(target)
+
     new_text = ''
     toggle_path_to_raw_data = False
     with open(original_path, 'r') as file:        
@@ -251,7 +288,7 @@ def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
                 toggle_path_to_raw_data=False
             new_text += current_line
             if current_line == 'ROI:\n':
-                new_text += f'  {target["name"]}:\n'
+                new_text += f'  {target}:\n'
                 new_text += f'    coordinates: [{target["ra"]}, {target["dec"]}]\n'
             if current_line == "point_sources: #  'label: [ra, dec]'\n":
                 new_text += f'  A: [{target["ra"]}, {target["dec"]}]\n'
@@ -259,7 +296,8 @@ def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
     tmp_yaml_path = os.path.dirname(original_path)+"/tmp_configs/"
     if os.path.isdir(tmp_yaml_path) is False:
         os.mkdir(tmp_yaml_path)
-    tmp_config_file_name = tmp_yaml_path+original_path.split("/")[-1][:-5]+"_"+target["name"]+".yaml"
+
+    tmp_config_file_name = tmp_yaml_path+original_path.split("/")[-1][:-5]+"_"+target_string+extension+".yaml"
 
     with open(tmp_config_file_name, 'w') as file:
         file.write(new_text)
@@ -268,50 +306,63 @@ def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
 
 
 def check_header(my_header, image_metadata):
-    # check that the header has the necessary information for lightcurver
-    #my_header['PC1_1'] = my_header['CD1_1']
-    #my_header['PC1_2'] = my_header['CD1_2']
-    #my_header['PC2_1'] = my_header['CD2_1']
-    #my_header['PC2_2'] = my_header['CD2_2']
+    '''This adds a few pieces of metadata to the header
+    my_header: FITS header object to adjust for Lightcurver
+    image_metadata: metadata from an LSST image_exposure object using it's method image_exposure.getMetadata()
+    return: updated header with 'OBSTART', 'EXPTIME', 'GAIN' key value pairs
+    '''
     my_header['OBSTART'] = image_metadata['DATE-BEG']
     my_header['EXPTIME'] = image_metadata['SHUTTIME']
     my_header['GAIN'] = image_metadata['CCDGAIN']
     return my_header
 
-## initialize_database already does this. No need for another function to wrap it
-#def build_directory_structure_for_lightcurver(base_dir="./"):
-#    # this is the directory structure that lightcurver expects for its configuration file
-#    from lightcurver.structure.database import initialize_databse
-#    initialize_databse(db_path=base_dir)
-#    return None
 
-
-
-
-
-def clean_directory_structure_for_lightcurver(base_dir="./"):
-    # this cleans the directory structure that lightcurver 
-    # filled with fits files
+def clean_directory_structure_for_lightcurver(base_dir="./", blacklist_dirs=[]):
+    '''This cleans the directory structure that lightcurver filled with fits files
+    base_dir: uppermost directory to clean of all files with .fits and .jpg extensions
+    blacklist_dirs: list of directories to ignore in the cleaning process
+    return: None
+    '''
     import os
-    for dirpath, dirnames, filenames in os.walk(base_dir):
+    for dirpath, _, filenames in os.walk(base_dir):
         for filename in filenames:
+            total_file_path = os.path.abspath(os.path.join(dirpath, filename))
             if filename.endswith(".jpg") or filename.endswith(".fits"):
-                os.remove(os.path.join(dirpath, filename))
+                flag_for_deletion = True
+                for directory in blacklist_dirs:
+                    full_blacklisted_path = os.path.abspath(directory)
+                    if os.path.commonpath(
+                        [total_file_path, full_blacklisted_path]
+                    ) == full_blacklisted_path:
+                        flag_for_deletion = False
+                        continue
+                if flag_for_deletion:
+                    os.remove(os.path.join(dirpath, filename))
     return None
 
 
 def check_new_light_curve_data(new_data):
-    # check that the new data is in the correct format for lightcurver
+    '''check that the new data is in the correct format for the light curve object
+    new_data: dictionary of data to append a lightcurve object
+    return: set object containing no duplicates for the bands to query
+    '''
     assert type(new_data) is dict, "new data must be a dictionary"
-    new_data_bands = set([key.split("_")[0] for key in new_data.keys()])
-    for band in new_data_bands:
-        if band+"_time" not in new_data or band+"_mag" not in new_data or band+"_mag_err" not in new_data:
-            raise ValueError(f"new data for band {band} must include time, mag, and mag_err")
+    new_data_images = set([key for key in new_data.keys()])
+    for image in new_data_images:
+        new_data_bands = set([key.split("_")[0] for key in new_data[image].keys()])
+        for band in new_data_bands:
+            if band+"_time" not in new_data[image] or band+"_mag" not in new_data[image] or band+"_mag_err" not in new_data[image]:
+                raise ValueError(f"new data for band {band} must include time, mag, and mag_err")
     return new_data_bands
         
 
 def load_light_curve(file_name, directory="./extracted_light_curves/", extension=".lc"):
-    # load the light curve from a file
+    '''load the pickled light curve from a file
+    file_name: string representing the path of the file to load
+    directory: string representing the directory containing the file to load
+    extension: extension of the lightcurve object, default is .lc
+    return: lightcurve object
+    '''
     import pickle
     from livelcs.Classes.light_curve import LightCurve
     import os
@@ -328,12 +379,6 @@ def load_light_curve(file_name, directory="./extracted_light_curves/", extension
         loaded_light_curve["time_last_updated"] = None
     return loaded_light_curve
 
-
-
-
-def processed_stellar_cutouts():
-    # use Lightcurver or other method
-    pass
 
 
 

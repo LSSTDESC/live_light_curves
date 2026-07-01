@@ -1,11 +1,12 @@
-"""class containing quasar cutouts"""
+"""class containing quasar cutout(s)"""
 
 # add point source positions to init
 
 
-class QuasarCutouts(file_name=None):
-    """contains cutout of quasar cutouts"""
-    def __init__(self):
+class QuasarCutouts:
+    """contains cutout of quasar cutouts
+    file_name: string representing the path to the file of a cutout"""
+    def __init__(self, file_name=None):
         if file_name is not None:
             with fits.open(file_name) as hdul:
                 self.data = hdul[0].data

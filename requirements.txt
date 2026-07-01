@@ -6,5 +6,6 @@ scipy
 pyvo
 lsst-daf-butler
 lsst-sphgeom
+pandas
 
 
