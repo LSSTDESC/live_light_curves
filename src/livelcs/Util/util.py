@@ -248,9 +248,9 @@ def query_coords(
     #return output_cutouts
     return written_files
 
-def extract_ra_dec_target_string(input_dataframe):
-    """Take an input dataframe with one row that has columns 'name', 'ra', 'dec' and return extracted values
-    input_dataframe: pd.DataFrame object with a single row
+def extract_ra_dec_target_string(input_series):
+    """Take an input pandas series that has columns 'name', 'ra', 'dec' and return extracted values
+    input_series: pd.Series object 
     return: tuple with types 
         (
             str: name,
@@ -260,9 +260,9 @@ def extract_ra_dec_target_string(input_dataframe):
     """
     import pandas as pd
     try:
-        ra = float(input_dataframe.iloc[0].loc["ra"].value)
-        dec = float(input_dataframe.iloc[0].loc["dec"].value)
-        target_string = str(input_dataframe.iloc[0].loc["name"].value)
+        ra = float(input_series.loc["ra"])
+        dec = float(input_series.loc["dec"])
+        target_string = str(input_series.loc["name"])
         return target_string, ra, dec
     except:
         print("input dataframe must have 'name', 'ra', and 'dec' at minimum.")
