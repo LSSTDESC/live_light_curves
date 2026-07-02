@@ -262,9 +262,9 @@ def extract_ra_dec_target_string(input_dataframe):
     if type(input_dataframe) is not pd.DataFrame:
         print("please provide a pd.DataFrame object")
         return None
-    ra = float(input_dataframe["ra"].values[0])
-    dec = float(input_dataframe["dec"].values[0])
-    target_string = str(input_dataframe["name"].values[0])
+    ra = float(input_dataframe.iloc[0]["ra"])
+    dec = float(input_dataframe.iloc[0]["dec"])
+    target_string = str(input_dataframe.iloc[0]["name"])
     return target_string, ra, dec
 
 
