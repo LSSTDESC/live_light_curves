@@ -76,10 +76,13 @@ butler = prepare_butler(
 # this produces a list of visit images
 all_data = []
 
-for jj in tqdm.tqdm(range(len(targets))):
+if type(targets) != pd.DataFrame:
+    print("Warning: targets could not be read into a pandas dataframe.")
 
-    ra = targets[jj]['ra']
-    dec = targets[jj]['dec']
+for jj in tqdm.tqdm(range((targets.shape[0]))):
+
+    ra = targets.iloc[jj]['ra']
+    dec = targets.iloc[jj]['dec']
 
     # this will be an input parameter
     lsst_bands = other_args["lsst_bands"]

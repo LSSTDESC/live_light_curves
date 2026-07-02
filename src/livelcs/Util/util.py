@@ -58,6 +58,9 @@ def parse_arguments(all_arguments=None):
     elif arg_dict["targets"][-3:] == 'csv':
         current_targets = pd.read_csv(arg_dict["targets"])
 
+    elif arg_dict["targets"][-3:] == 'pkl':
+        current_targets = pd.read_pickle(arg_dict["targets"])
+
     else:
         print(arg_dict)
         print("list of objects not recognized. please provide a valid json or csv file.")
