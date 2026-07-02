@@ -213,7 +213,7 @@ def test_check_header():
     from astropy.io import fits
     from astropy.wcs import WCS
     import matplotlib.pyplot as plt
-    sterile_fits_file_path = "./tests/testUtil/sample_cleaned_fits_file.fitz"
+    sterile_fits_file_path = "./tests/TestUtil/sample_cleaned_fits_file.fitz"
     with fits.open(sterile_fits_file_path) as hdul:
         data = hdul[0].data
         header = hdul[0].header
