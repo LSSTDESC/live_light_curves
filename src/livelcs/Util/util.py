@@ -260,9 +260,9 @@ def extract_ra_dec_target_string(input_dataframe):
     """
     import pandas as pd
     try:
-        ra = float(input_dataframe.iloc[0].loc["ra"])
-        dec = float(input_dataframe.iloc[0].loc["dec"])
-        target_string = str(input_dataframe.iloc[0].loc["name"])
+        ra = float(input_dataframe.iloc[0].loc["ra"].value)
+        dec = float(input_dataframe.iloc[0].loc["dec"].value)
+        target_string = str(input_dataframe.iloc[0].loc["name"].value)
         return target_string, ra, dec
     except:
         print("input dataframe must have 'name', 'ra', and 'dec' at minimum.")
