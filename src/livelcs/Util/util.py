@@ -259,13 +259,14 @@ def extract_ra_dec_target_string(input_dataframe):
         )
     """
     import pandas as pd
-    if type(input_dataframe) is not pd.DataFrame or type(input_dataframe) is not pd.Series:
-        print("please provide a pd.DataFrame object")
-        return None
-    ra = float(input_dataframe.iloc[0]["ra"])
-    dec = float(input_dataframe.iloc[0]["dec"])
-    target_string = str(input_dataframe.iloc[0]["name"])
-    return target_string, ra, dec
+    try:
+        ra = float(input_dataframe.iloc[0]["ra"])
+        dec = float(input_dataframe.iloc[0]["dec"])
+        target_string = str(input_dataframe.iloc[0]["name"])
+        return target_string, ra, dec
+    except:
+        print("input dataframe must have 'name', 'ra', and 'dec' at minimum.")
+        return None, None, None
 
 
 def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
