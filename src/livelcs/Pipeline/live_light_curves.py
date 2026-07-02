@@ -114,7 +114,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
 
     ### make temporary configuration file to place ROI at current objects 
     # Need new temp yaml file per target
-    this_config_file, raw_dir = make_temp_yaml_with_new_roi(targets[jj], config_path)
+    this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path)
     environ['LIGHTCURVER_CONFIG'] = this_config_file
 
     current_position = []
