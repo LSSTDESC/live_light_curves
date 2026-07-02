@@ -4,7 +4,6 @@ import sys
 from livelcs.Util.util import (
     find_lsst_config,
     parse_arguments,
-    open_tap_service,
     prepare_butler,
     query_coords,
     make_temp_yaml_with_new_roi,
@@ -82,7 +81,8 @@ for jj in tqdm.tqdm(range(len(targets))):
     # this will be an input parameter
     lsst_bands = other_args["lsst_bands"]
 
-    print(targets[jj]['name'])
+    if other_args["verbose"]:
+        print(targets[jj]['name'])
 
     light_curve = load_light_curve(targets[jj]['name'])
 
@@ -126,6 +126,7 @@ for jj in tqdm.tqdm(range(len(targets))):
             if len(written_files) > 0:
 
                 # Lightcurver requires this main wrapper on some systems.
+                # Add switch to use supersampled PSF from LSST pipeline
                 if __name__ == '__main__':
                     get_user_config()
                     initialize_database()
@@ -153,30 +154,6 @@ for item in all_data:
 exit()
 
 
-# import sources from live_light_curves.source_list using some json interface
-# for each observation:
-    # check if any coordinates in sources lay within FOV
-        # any which fall within the visit images will be selected
-    
-
-
-
-
-### run Lightcurver steps 4-6 to get PSF from nearby stars
-
-# pass each newly generated cutout to Lightcurver stamp extraction and PSF modeling
-# initialize live_light_curves.Classes.stellar_cutouts with the Lightcurver outputs
-
-
-
-### have "Narrow PSF"
-
-# initialize live_light_curves.Classes.narrow_psf so it works with this pipeline
-
-
-
-### Lightcurver step 7 for stellar photometry (opt)
-# initialize live_light_curves.Classes.stellar_photometry if we want to push stellar light curves
 
 
 ### Starred to get deconvolved sources (requires point source initial positions)

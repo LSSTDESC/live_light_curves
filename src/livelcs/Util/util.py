@@ -13,6 +13,7 @@ def parse_arguments(all_arguments=None):
     --butler_config: string defining butler configuration
     --butler_collections: strong defining which collections to query
     --redo_light_curve: Bool to reconstruct light curves. Will overwrite lightcurve data!
+    --psf_method: "lightcurver" or "supersampled", defines the method of computing PSF
     return: list of dictionaries for each target, dictionary containing configuration from command line arguments
     '''
     import argparse
@@ -37,6 +38,8 @@ def parse_arguments(all_arguments=None):
     all_args.add_argument("--known_lightcurver_config_path", default=None, help="path to the template lightcurver configuration path")
     all_args.add_argument("--base_working_directory", default='./LSST_data', help="path to directory where Lightcurver works in")
     all_args.add_argument("--blacklist_dirs", default=[], help="list of directories to not clean")
+    all_args.add_argument("--psf_method", default="lightcurver", help="define which method to compute the PSF with")
+
 
     if all_arguments is None:
         print("please provide a list or json of targets to monitor")
