@@ -84,9 +84,10 @@ if type(targets) != DataFrame:
 for jj in tqdm.tqdm(range((targets.shape[0]))):
 
     working_data = targets.iloc[jj]
-    print(type(working_data))
-    
+
     target_string, ra, dec = extract_ra_dec_target_string(working_data)
+    if target_string is None:
+        continue
 
     # this will be an input parameter
     lsst_bands = other_args["lsst_bands"]
