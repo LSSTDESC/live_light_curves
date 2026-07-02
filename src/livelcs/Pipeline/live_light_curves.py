@@ -9,7 +9,7 @@ from livelcs.Util.util import (
     make_temp_yaml_with_new_roi,
     load_light_curve, 
     clean_directory_structure_for_lightcurver,
-    extract_target_info
+    extract_ra_dec_target_string
 )
 #from astropy.time import Time as astro_time
 #import astropy.units as u
@@ -84,7 +84,7 @@ if type(targets) != DataFrame:
 for jj in tqdm.tqdm(range((targets.shape[0]))):
 
     working_data = targets.iloc[jj]
-    target_string, ra, dec = extract_target_info(working_data)
+    target_string, ra, dec = extract_ra_dec_target_string(working_data)
 
     # this will be an input parameter
     lsst_bands = other_args["lsst_bands"]
