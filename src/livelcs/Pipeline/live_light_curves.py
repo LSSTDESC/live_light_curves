@@ -35,6 +35,7 @@ from lightcurver.processes.roi_modelling import do_modelling_of_roi
 #import argparse
 #import CCE/HME detection
 from numpy import linspace
+from pandas import DataFrame
 import tqdm
 
 #import lsst.sphgeom as sphgeom
@@ -76,7 +77,7 @@ butler = prepare_butler(
 # this produces a list of visit images
 all_data = []
 
-if type(targets) != pd.DataFrame:
+if type(targets) != DataFrame:
     print("Warning: targets could not be read into a pandas dataframe.")
 
 for jj in tqdm.tqdm(range((targets.shape[0]))):
