@@ -8,7 +8,8 @@ from livelcs.Util.util import (
     query_coords,
     make_temp_yaml_with_new_roi,
     load_light_curve, 
-    clean_directory_structure_for_lightcurver
+    clean_directory_structure_for_lightcurver,
+    extract_target_info
 )
 #from astropy.time import Time as astro_time
 #import astropy.units as u
@@ -82,16 +83,16 @@ if type(targets) != DataFrame:
 
 for jj in tqdm.tqdm(range((targets.shape[0]))):
 
-    ra = targets.iloc[jj]['ra']
-    dec = targets.iloc[jj]['dec']
+    working_data = targets.iloc[jj]
+    target_string, ra, dec = extract_target_info(working_data)
 
     # this will be an input parameter
     lsst_bands = other_args["lsst_bands"]
 
     if other_args["verbose"]:
-        print(targets[jj]['name'])
+        print(target_string)
 
-    light_curve = load_light_curve(targets[jj]['name'])
+    light_curve = load_light_curve(target_string)
 
     if other_args["redo_light_curve"]:
         time_start = float(other_args["time_start"])
