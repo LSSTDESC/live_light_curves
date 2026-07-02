@@ -66,7 +66,10 @@ butler_collections = other_args["butler_collections"] # e.g. "LSSTComCam/DP1"
 
 
 ### set up the butler, store your RSP token as envirionment variable "ACCESS_TOKEN" 
-butler = prepare_butler(butler_config, butler_collections)
+butler = prepare_butler(
+    configuration=butler_config, 
+    collections=butler_collections
+)
 
 
 ### query given coordinates
