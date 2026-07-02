@@ -84,6 +84,8 @@ if type(targets) != DataFrame:
 for jj in tqdm.tqdm(range((targets.shape[0]))):
 
     working_data = targets.iloc[jj]
+    print(type(working_data))
+    
     target_string, ra, dec = extract_ra_dec_target_string(working_data)
 
     # this will be an input parameter
