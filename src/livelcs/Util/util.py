@@ -259,7 +259,7 @@ def extract_ra_dec_target_string(input_dataframe):
         )
     """
     import pandas as pd
-    if type(input_dataframe) is not pd.DataFrame:
+    if type(input_dataframe) is not pd.DataFrame or type(input_dataframe) is not pd.Series:
         print("please provide a pd.DataFrame object")
         return None
     ra = float(input_dataframe.iloc[0]["ra"])
