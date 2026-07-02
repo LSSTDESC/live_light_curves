@@ -295,10 +295,10 @@ def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
                 toggle_path_to_raw_data=False
             new_text += current_line
             if current_line == 'ROI:\n':
-                new_text += f'  {target}:\n'
-                new_text += f'    coordinates: [{target["ra"]}, {target["dec"]}]\n'
+                new_text += f'  {target_string}:\n'
+                new_text += f'    coordinates: [{ra}, {dec}]\n'
             if current_line == "point_sources: #  'label: [ra, dec]'\n":
-                new_text += f'  A: [{target["ra"]}, {target["dec"]}]\n'
+                new_text += f'  A: [{ra}, {dec}]\n'
 
     tmp_yaml_path = os.path.dirname(original_path)+"/tmp_configs/"
     if os.path.isdir(tmp_yaml_path) is False:
