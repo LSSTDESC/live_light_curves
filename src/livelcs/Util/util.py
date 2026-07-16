@@ -213,7 +213,7 @@ def query_coords(
         if verbose:
             print(expt)
             print("no visit images found matching given times and coordinates")
-        return None
+        return []
 
 
 def extract_image(
