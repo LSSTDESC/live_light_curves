@@ -207,12 +207,13 @@ def query_coords(
         )
         if verbose:
             print(f"{len(dataset_references)} images found")
+        return dataset_references
     except Exception as expt:
         # this catches the failures when no images overlap with the chosen coordinates for a given time
         if verbose:
             print(expt)
             print("no visit images found matching given times and coordinates")
-    return dataset_references
+        return None
 
 
 def extract_image(
