@@ -149,6 +149,13 @@ def query_coords(
     from os import path
     import astropy.units as u
     from numpy import asarray, float64
+
+    # typecast the input time strings into numbers
+    if type(time_stop) is str:
+        time_stop = float(time_stop)
+    if type(time_start) is str:
+        time_start = float(time_start)
+
     if time_stop is None:
         time_stop = astro_time.now()
     elif type(time_stop) in [int, float, float64]:
