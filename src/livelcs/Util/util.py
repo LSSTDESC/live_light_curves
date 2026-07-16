@@ -31,7 +31,9 @@ def parse_arguments(all_arguments=None):
     all_args.add_argument("--time_stop", default=None, help="Stop time in MJD for querying Butler, will default to current date if not provided")
     all_args.add_argument("--cutout_size", default=100, help="Size of cutouts in pixels")
     all_args.add_argument("--lsst_bands", default=list("ugrizy"), help="LSST bands to query")
-    all_args.add_argument("--time_interval", default=50, help="Time interval in MJD for querying Butler")
+    # to be removed
+    #all_args.add_argument("--time_interval", default=50, help="Time interval in MJD for querying Butler")
+    
     all_args.add_argument("--butler_config", default="dp1", help="Butler configuration to use")
     all_args.add_argument("--butler_collections", default="LSSTComCam/DP1", help="Butler collections to use")
     all_args.add_argument("--redo_light_curve", default=False, help="flag to recalculate full light curve instead of appending")
@@ -140,13 +142,11 @@ def query_coords(
     time_end: date in MJD to end querying
     cutout_size: pixel size of the output
     verbose: Bool to print information about the querying process
-    return: list of written files
+    return: set of Butler dataset references
     '''
     from astropy.time import Time as astro_time
-    from astropy.io import fits
     from lsst.daf.butler import Timespan
     from os import path
-    import lsst.geom as geom
     import astropy.units as u
     from numpy import asarray, float64
     if time_stop is None:
@@ -174,16 +174,6 @@ def query_coords(
     if band not in list("ugrizy"):
         print("only lsst bands labeled 'u', 'g', 'r', 'i', 'z', 'y' are accepted at this time")
         return None
-    
-    # These are required to make sure the coordinates are actually
-    # in the visit image
-    center_point = geom.SpherePoint(
-        ra * geom.degrees,
-        dec * geom.degrees
-    )
-    extent = geom.Extent2I()
-    extent.setX(cutout_size)
-    extent.setY(cutout_size)
 
     # main query
     query = "band.name = :band AND " \
@@ -196,7 +186,9 @@ def query_coords(
         "timespan": timespan
     }
 
-    written_files = []
+    # adjust query to only return the list of references
+    # make a new functino to actually get the fits files for a single ref so 
+    # we can deleete the excess files and not have such a large memory overhead
     if verbose:
         print("querying with parameters:", bind_params)
     try:
@@ -208,45 +200,72 @@ def query_coords(
         )
         if verbose:
             print(f"{len(dataset_references)} images found")
-
-        for reference in dataset_references:
-            visit_id = reference.dataId.get('visit')
-            
-            # print visit ids if verbose
-            if verbose: 
-                print(f"current id = {visit_id}")
-
-            # only query if it's not in your raw directory
-            if not path.isfile(raw_dir+"/LSST"+str(visit_id)+".fits"):
-                file_to_write = raw_dir+"/LSST"+str(visit_id)+".fits"
-
-                visit_image = butler.get(reference)
-                #cutout = visit_image.getCutout(center=center_point, size=extent)
-
-                if visit_image.containsSkyCoords(
-                    ra * u.deg,
-                    dec * u.deg,
-                ):
-                    # Write the visit image to a fits file for processing
-                    visit_image.writeFits(file_to_write)
-                    # collect additional metadata
-                    image_metadata = visit_image.getMetadata()
-                    # add metadata required for Lightcurver as keywords
-                    my_data, my_header = fits.getdata(file_to_write, header=True)
-                    my_header = check_header(my_header, image_metadata)
-                    # rewrite the file with extra metadata
-                    fits.writeto(file_to_write, my_data, my_header, overwrite=True)
-                    # add the file to a list
-                    written_files.append(file_to_write)
-
     except Exception as expt:
         # this catches the failures when no images overlap with the chosen coordinates for a given time
         if verbose:
             print(expt)
             print("no visit images found matching given times and coordinates")
+    return dataset_references
 
-    #return output_cutouts
-    return written_files
+
+def extract_image(
+    butler,
+    reference_id,
+    ra, 
+    dec,
+    raw_dir=None,
+    cutout_size=100,
+    verbose=False
+):
+    '''This takes in a single dataset reference and extracts the visit image
+    butler: Butler class object used to query LSST images
+    reference_id: int or str with the visit image identifier
+    ra: float representing right ascension
+    dec: float representing declination
+    raw_dir: directory to write the temporary files in
+    cutout_size: n/a, but if used an int representing the cutout size to save
+    verbose: flag to give the user more information
+    '''
+    from astropy.io import fits
+    import lsst.geom as geom
+    from os import path
+    # for reference in dataset_references: # loop in the live_light_curves pipeline
+            
+    visit_id = reference_id.dataId.get('visit')
+    # print visit ids if verbose
+    if verbose: 
+        print(f"current id = {visit_id}")
+
+    file_to_write = raw_dir+"/LSST"+str(visit_id)+".fits"
+
+    # This is required for cutout generation (not implimented at this point)
+    center_point = geom.SpherePoint(
+        ra * geom.degrees,
+        dec * geom.degrees
+    )
+    extent = geom.Extent2I()
+    extent.setX(cutout_size)
+    extent.setY(cutout_size)
+
+    # only query if it's not in your raw directory
+    if not path.isfile(file_to_write):
+        visit_image = butler.get(reference_id)
+        # If we want to add cutout capability, add cutout generation here
+
+        # Write the visit image to a fits file for processing
+        visit_image.writeFits(file_to_write)
+        # collect additional metadata
+        image_metadata = visit_image.getMetadata()
+        # add metadata required for Lightcurver as keywords
+        my_data, my_header = fits.getdata(file_to_write, header=True)
+        my_header = adjust_header(my_header, image_metadata)
+        # rewrite the file with extra metadata
+        fits.writeto(file_to_write, my_data, my_header, overwrite=True)
+    else:
+        if verbose:
+            print("Fits file already saved, keep in mind these files are large!")
+
+    return file_to_write
 
 def extract_ra_dec_target_string(input_series):
     """Take an input pandas series that has columns 'name', 'ra', 'dec' and return extracted values
@@ -259,15 +278,29 @@ def extract_ra_dec_target_string(input_series):
         )
     """
     import pandas as pd
-    try:
-        ra = float(input_series.loc["ra"])
-        dec = float(input_series.loc["dec"])
-        target_string = str(input_series.loc["name"])
-        return target_string, ra, dec
-    except:
-        print("input dataframe must have 'name', 'ra', and 'dec' at minimum.")
-        return None, None, None
 
+    if type(input_series) is pd.Series:
+        print("gets to pd series check")
+        try:
+            ra = float(input_series["ra"])
+            dec = float(input_series["dec"])
+            target_string = str(input_series["name"])
+            return target_string, ra, dec
+        except:
+            print(input_series)
+            print("input dataframe must have 'name', 'ra', and 'dec'")
+            return None, None, None
+    elif type(input_series) is pd.DataFrame:
+
+        try:
+            ra = float(input_series["ra"].values[0])
+            dec = float(input_series["dec"].values[0])
+            target_string = str(input_series["name"].values[0])
+            return target_string, ra, dec
+        except:
+            print(input_series)
+            print("input dataframe must have 'name', 'ra', and 'dec'")
+            return None, None, None
 
 def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
     """Lightcurver requires a configuration file with the region of interest
@@ -280,7 +313,12 @@ def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
     import os
     import pandas as pd
 
-    target_string, ra, dec = extract_ra_dec_target_string(target)
+    if type(target) is pd.DataFrame:
+        target_string, ra, dec = extract_ra_dec_target_string(target.iloc[0])
+    elif type(target) is pd.Series:
+        target_string, ra, dec = extract_ra_dec_target_string(target)
+    else:
+        print("input target must be a pd.DataFrame or pd.Series")
 
     new_text = ''
     toggle_path_to_raw_data = False
@@ -297,6 +335,7 @@ def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
             if current_line == 'ROI:\n':
                 new_text += f'  {target_string}:\n'
                 new_text += f'    coordinates: [{ra}, {dec}]\n'
+            # not 100% sure if I need this, but other yaml files have similar lines
             if current_line == "point_sources: #  'label: [ra, dec]'\n":
                 new_text += f'  A: [{ra}, {dec}]\n'
 
@@ -312,7 +351,7 @@ def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
     return tmp_config_file_name, raw_dir
 
 
-def check_header(my_header, image_metadata):
+def adjust_header(my_header, image_metadata):
     '''This adds a few pieces of metadata to the header
     my_header: FITS header object to adjust for Lightcurver
     image_metadata: metadata from an LSST image_exposure object using it's method image_exposure.getMetadata()

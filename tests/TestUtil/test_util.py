@@ -23,7 +23,6 @@ def test_parse_arguments():
         'time_stop', 
         'cutout_size', 
         'lsst_bands', 
-        'time_interval', 
         'butler_config', 
         'butler_collections', 
         'redo_light_curve', 
@@ -139,10 +138,14 @@ def test_query_coords():
     # also not sure how to test without giving data access
     assert 1
 
+def test_extract_image():
+    # again not sure how to test without constructing a valid butler object with data access
+    assert 1
+
 def test_extract_ra_dec_target_string():
     import pandas as pd
     blank_csv_data = [
-        ["blank_name", int(1), 2.5, " "],
+        ["blank_name", int(1), float(2.5), " "],
         ["second_object", 10.00000, -30., "yellow"]
     ]
     my_dataframe = pd.DataFrame(blank_csv_data, columns=["name", "ra", "dec", "bogus_column"])
@@ -192,6 +195,7 @@ def test_make_temp_yaml_with_new_roi():
         all_arguments=["--targets","./sample_csv_lenses.csv"]
     )
 
+    print(expected_target)
     # create a pd.DataFrame with only one object
     target_of_interest = loaded_targets_from_csv.query("name == @expected_target")
 
@@ -209,10 +213,12 @@ def test_make_temp_yaml_with_new_roi():
         os.rmdir(new_raw_dir)
     assert not os.path.isdir(new_raw_dir)
 
-def test_check_header():
+def test_adjust_header():
     from astropy.io import fits
     from astropy.wcs import WCS
     import matplotlib.pyplot as plt
+    # note this sterile fits file has been scrubbed of image data. 
+    # the fits header was kept with original values
     sterile_fits_file_path = "./tests/TestUtil/sample_cleaned_fits_file.fitz"
     with fits.open(sterile_fits_file_path) as hdul:
         data = hdul[0].data
@@ -221,19 +227,20 @@ def test_check_header():
     expected_header_cards = ['OBSTART', 'EXPTIME', 'GAIN']
     
     # These are non-typical header cards for the LSST pipeline output that are 
-    # required for Lightcurver
+    # required for Lightcurver, but provided in the visit image metadata
     for item in expected_header_cards:
         assert item not in header.keys()
     
-    # I will only provide the minimum metadata required for this pipeline, 
-    # the actual metadata is a much larger dictionary
+    # I will only provide the minimum metadata required for this pipeline. 
+    # The actual metadata is a much larger dictionary and these are only 
+    # representative values, not true values from Rubin.
     required_metadata = {
         'DATE-BEG': "2000-01-01T00:30:00.000",
         'SHUTTIME': "30",
         'CCDGAIN': "1"
     }
 
-    adjusted_header = util.check_header(header, required_metadata)
+    adjusted_header = util.adjust_header(header, required_metadata)
     # check that OBSTART, EXPTIME, GAIN are now in the header cards
     for item in expected_header_cards:
         assert item in header.keys()

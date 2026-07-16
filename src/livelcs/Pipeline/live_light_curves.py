@@ -9,7 +9,8 @@ from livelcs.Util.util import (
     make_temp_yaml_with_new_roi,
     load_light_curve, 
     clean_directory_structure_for_lightcurver,
-    extract_ra_dec_target_string
+    extract_ra_dec_target_string,
+    extract_image
 )
 #from astropy.time import Time as astro_time
 #import astropy.units as u
@@ -43,9 +44,7 @@ import tqdm
 #import lsst.geom as geom
 
 # We need access to the environmental variables because that's where the lightcurver config is stored
-from os import environ
-#from os import path
-
+import os
 
 
 ### read in file of coordinates
@@ -54,6 +53,7 @@ if len(sys.argv) == 1:
     print("please provide a file holding a list of objects when calling this script")
 all_arguments = sys.argv[1:]
 targets, other_args = parse_arguments(all_arguments)
+verbose = other_args["verbose"]
 
 
 # Include a string of the file path to the config_LSST file if not automatically detected.
@@ -92,7 +92,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
     # this will be an input parameter
     lsst_bands = other_args["lsst_bands"]
 
-    if other_args["verbose"]:
+    if verbose:
         print(target_string)
 
     light_curve = load_light_curve(target_string)
@@ -103,39 +103,62 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         if light_curve.data["time_last_updated"] is not None:
             time_start = float(light_curve.data["time_last_updated"])
         else:
+            # initialize time start to MJD 40587 = Jan 1, 1970
             time_start = 40587
+
     time_stop = float(other_args["time_stop"])
 
-    cutout_size = int(other_args["cutout_size"]) # in pixels, so 100 means 100x100 cutouts
-    time_interval = float(other_args["time_interval"]) # check in batches of time
+    cutout_size = int(other_args["cutout_size"]) # per edge in pixels, always square
 
-    time_endpoints = linspace(time_start, time_stop, int((time_stop-time_start)/time_interval))
-    time_intervals = [(time_endpoints[ii], time_endpoints[ii+1]) for ii in range(len(time_endpoints)-1)]
+    ## not needed now that I will query all relevant times, then go visit image by visit image
+    #time_interval = float(other_args["time_interval"]) # check in batches of time
+    #time_endpoints = linspace(time_start, time_stop, int((time_stop-time_start)/time_interval))
+    #time_intervals = [(time_endpoints[ii], time_endpoints[ii+1]) for ii in range(len(time_endpoints)-1)]
+
+    time_interval = [time_start, time_stop]
 
     ### make temporary configuration file to place ROI at current objects 
     # Need new temp yaml file per target
     this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path)
-    environ['LIGHTCURVER_CONFIG'] = this_config_file
+    os.environ['LIGHTCURVER_CONFIG'] = this_config_file
+    # include this yaml file in cleanup step, fast enough to make again and we don't want thousands of mostly identical files
 
+    # do we need this list?
     current_position = []
 
-    for time_interval in tqdm.tqdm(time_intervals):
-        for band in lsst_bands:
-            # Get all frames within a given time interval from Butler
-            written_files = query_coords(
-                butler,
-                band,
-                ra,
-                dec,
-                raw_dir=raw_dir,
-                time_start=time_interval[0],
-                time_stop=time_interval[1],
-                cutout_size=cutout_size,
-                verbose=True
-            )
 
-            if len(written_files) > 0:
+    for band in lsst_bands:
+        # Get all frames within a given time interval from Butler
+        # make this a list of references, then afterwards fetch fits files 
+        # within the next loop. This way Lightcurver or any other method can 
+        # focus on a single visit image to get the psf, do the processing, and 
+        # most importantly clean up before the next object. 
 
+        # name this "reference list" or something similar.
+        band_reference_ids = query_coords(
+            butler,
+            band,
+            ra,
+            dec,
+            raw_dir=raw_dir,
+            time_start=time_interval[0],
+            time_stop=time_interval[1],
+            cutout_size=cutout_size,
+            verbose=verbose
+        )
+
+        # only can query images if they exist
+        if len(band_reference_ids) > 0:
+            for reference_id in band_reference_ids:
+                extract_image(
+                    butler,
+                    reference_id,
+                    raw_dir=raw_dir,
+                    cutout_size=cutout_size,
+                    verbose=verbose
+                )
+
+            if other_args["method"] is "lightcurver":
                 # Lightcurver requires this main wrapper on some systems.
                 # Add switch to use supersampled PSF from LSST pipeline
                 if __name__ == '__main__':
@@ -153,10 +176,24 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                     prepare_roi_file()
                     do_modelling_of_roi()
 
-                    clean_directory_structure_for_lightcurver(
-                        base_dir=other_args["base_working_directory"],
-                        blacklist_dirs=other_args["blacklist_dirs"]
-                    )
+            elif other_args["method"] is "lsst_supersampled_psf":
+                # insert some code here from Shenming's notebook on 
+                # calculating supersampled PSF
+                # insert some code here to make a h5 file from this for starred
+                pass
+
+            else:
+                print("please pass an argument for a valid PSF construction method \n These currently include 'lightcurver' and 'lsst_supersampled_psf'.")
+                exit()
+
+            if verbose:
+                print("cleaning directories of temp files")
+            
+            os.remove(this_config_file)
+            clean_directory_structure_for_lightcurver(
+                base_dir=other_args["base_working_directory"],
+                blacklist_dirs=other_args["blacklist_dirs"]
+            )
 
 
     

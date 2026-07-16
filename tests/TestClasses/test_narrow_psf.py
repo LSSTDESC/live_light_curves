@@ -26,11 +26,11 @@ class TestNarrowPsf:
         ])
     }
     
-    with open(dummy_file_name, 'wb') as file:
-        pickle.dump(test_psf, file)
+    #with open(dummy_file_name, 'wb') as file:
+    #    pickle.dump(test_psf, file)
 
-    with open(dummy_file_name, 'rb') as file:
-        loaded_data = pickle.load(file)
+    #with open(dummy_file_name, 'rb') as file:
+    #    loaded_data = pickle.load(file)
     
     def test_init(self):
         my_none_file = NarrowPsf()
@@ -43,6 +43,8 @@ class TestNarrowPsf:
         my_loaded_file = NarrowPsf(self.dummy_file_name)
         assert type(my_loaded_file) == NarrowPsf
         assert type(my_loaded_file.narrow_psf) == dict
+        if os.path.isfile(self.dummy_file_name):
+            os.remove(self.dummy_file_name)
 
     def test_load_psf(self):
         with open(self.dummy_file_name, 'wb') as file:
@@ -55,6 +57,8 @@ class TestNarrowPsf:
         my_none_file.load_psf(self.dummy_file_name)
         assert 'data' in my_none_file.narrow_psf.keys()
         assert 'noisemap' in my_none_file.narrow_psf.keys()
+        if os.path.isfile(self.dummy_file_name):
+            os.remove(self.dummy_file_name)
     
     def test_return_psf_data(self):
         with open(self.dummy_file_name, 'wb') as file:
@@ -64,9 +68,8 @@ class TestNarrowPsf:
 
         assert (pulled_data == self.test_psf['data']).all()
         assert (pulled_noise == self.test_psf['noisemap']).all()
-
-    if os.path.isfile(dummy_file_name):
-        os.remove(dummy_file_name)
+        if os.path.isfile(self.dummy_file_name):
+            os.remove(self.dummy_file_name)
 
 
 
