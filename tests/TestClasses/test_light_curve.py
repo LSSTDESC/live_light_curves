@@ -1,6 +1,5 @@
 from livelcs.Classes.light_curve import LightCurve
 
-
 class TestLightCurve:
     mock_image_1_data = {
         "u_time": [50000, 50001, 50003, 50004, 50010],

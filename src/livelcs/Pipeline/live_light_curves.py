@@ -47,6 +47,7 @@ import tqdm
 import os
 
 
+
 ### read in file of coordinates
 # the targets parameter holds a dictionary of all objects in the provided file
 if len(sys.argv) == 1:
@@ -159,6 +160,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 )
 
             if other_args["method"] is "lightcurver":
+
                 # Lightcurver requires this main wrapper on some systems.
                 # Add switch to use supersampled PSF from LSST pipeline
                 if __name__ == '__main__':
