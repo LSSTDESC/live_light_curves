@@ -119,9 +119,10 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
     time_interval = [time_start, time_stop]
 
     ### make temporary configuration file to place ROI at current objects 
-    # Need new temp yaml file per target
     this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path)
     os.environ['LIGHTCURVER_CONFIG'] = this_config_file
+    if not os.path.isdir(raw_dir):
+        os.mkdir(raw_dir)
     # include this yaml file in cleanup step, fast enough to make again and we don't want thousands of mostly identical files
 
     # do we need this list?
@@ -191,13 +192,15 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 exit()
 
             if verbose:
-                print("cleaning directories of temp files")
+                print("cleaning directories of temp images")
             
-            os.remove(this_config_file)
             clean_directory_structure_for_lightcurver(
                 base_dir=other_args["base_working_directory"],
                 blacklist_dirs=other_args["blacklist_dirs"]
             )
+    if verbose:
+        print("removing tmp config file")
+    os.remove(this_config_file)
 
 
     
