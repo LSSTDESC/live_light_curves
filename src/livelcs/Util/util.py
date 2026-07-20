@@ -26,22 +26,18 @@ def parse_arguments(all_arguments=None):
         description="This script takes a list of objects to monitor and queries the LSST data for new visit images containing those objects. It then processes the images and updates the light curves for those objects."
     )
     all_args.add_argument("--targets", default=None, help="Path to the file containing the list of targets to monitor")
-    all_args.add_argument("--verbose", action="store_true", help="Print extra output")
+    all_args.add_argument("--verbose", default=False, help="Print extra output")
     all_args.add_argument("--time_start", default=float(40587), help="Start time in MJD for querying Butler, any known light curves will default to their latest time")
     all_args.add_argument("--time_stop", default=None, help="Stop time in MJD for querying Butler, will default to current date if not provided")
     all_args.add_argument("--cutout_size", default=100, help="Size of cutouts in pixels")
     all_args.add_argument("--lsst_bands", default=list("ugrizy"), help="LSST bands to query")
-    # to be removed
-    #all_args.add_argument("--time_interval", default=50, help="Time interval in MJD for querying Butler")
-    
     all_args.add_argument("--butler_config", default="dp1", help="Butler configuration to use")
     all_args.add_argument("--butler_collections", default="LSSTComCam/DP1", help="Butler collections to use")
     all_args.add_argument("--redo_light_curve", default=False, help="flag to recalculate full light curve instead of appending")
     all_args.add_argument("--known_lightcurver_config_path", default=None, help="path to the template lightcurver configuration path")
     all_args.add_argument("--base_working_directory", default='./LSST_data', help="path to directory where Lightcurver works in")
-    all_args.add_argument("--blacklist_dirs", default=[], help="list of directories to not clean")
+    all_args.add_argument("--blacklist_dirs", default=[], nargs="+", help="list of directories to not clean")
     all_args.add_argument("--psf_method", default="lightcurver", help="define which method to compute the PSF with")
-
 
     if all_arguments is None:
         print("please provide a list or json of targets to monitor")
@@ -51,9 +47,13 @@ def parse_arguments(all_arguments=None):
 
     my_args = all_args.parse_args(all_arguments)
     arg_dict = vars(my_args)
+
     if type(arg_dict["lsst_bands"]) is str:
         arg_dict["lsst_bands"] = list(arg_dict["lsst_bands"])
-        
+    
+    if type(arg_dict["verbose"]) is str and arg_dict["verbose"] is not "False":
+        arg_dict["verbose"] = True
+
     if arg_dict["targets"][-4:] == 'json':
         current_targets = pd.read_json(arg_dict["targets"])
 

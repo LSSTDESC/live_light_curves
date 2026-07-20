@@ -159,7 +159,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                     verbose=verbose
                 )
 
-            if other_args["method"] is "lightcurver":
+            if other_args["method"] == "lightcurver":
 
                 # Lightcurver requires this main wrapper on some systems.
                 # Add switch to use supersampled PSF from LSST pipeline
@@ -178,7 +178,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                     prepare_roi_file()
                     do_modelling_of_roi()
 
-            elif other_args["method"] is "lsst_supersampled_psf":
+            elif other_args["method"] == "lsst_supersampled_psf":
                 # insert some code here from Shenming's notebook on 
                 # calculating supersampled PSF
                 # insert some code here to make a h5 file from this for starred

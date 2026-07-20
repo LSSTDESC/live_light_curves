@@ -35,6 +35,7 @@ def test_parse_arguments():
         "--targets",
         "some_dummy_path", 
         "--verbose", 
+        "True",
         "--time_start",
         "55000", 
         "--time_stop",
@@ -77,6 +78,7 @@ def test_parse_arguments():
         "--targets",
         blank_file, 
         "--verbose", 
+        "True",
     ]
 
     # Test loading from a json file
@@ -98,6 +100,7 @@ def test_parse_arguments():
         "--targets",
         blank_file, 
         "--verbose", 
+        "False"
     ]
     blank_csv_data = [
         ["name", "ra", "dec", "bogus_column"],
@@ -114,8 +117,23 @@ def test_parse_arguments():
     assert_frame_equal(loaded_empty_targets_from_csv, my_loaded_csv)
     for this_key in expected_keys:
         assert this_key in other_args.keys()
+
+    passed_args.append("--blacklist_dirs")
+    passed_args.append("test_dir_number_1")
+    passed_args.append("test_dir_number_2")
+    passed_args.append("test_dir_number_3")
+    passed_args.append("--psf_method")
+    passed_args.append("supersampled")
+
+    _, extracted_args = util.parse_arguments(all_arguments=passed_args)
+    assert type(extracted_args["blacklist_dirs"]) is list
+    assert len(extracted_args["blacklist_dirs"]) == 3
+    assert "psf_method" in extracted_args.keys()
+    assert extracted_args["psf_method"] is "supersampled"
+
     if os.path.isfile(blank_file):
         os.remove(blank_file)
+
 
 def test_find_lsst_config():
     import os.path
