@@ -162,42 +162,42 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                     verbose=verbose
                 )
 
-            if other_args["psf_method"] == "lightcurver":
+                if other_args["psf_method"] == "lightcurver":
 
-                # Lightcurver requires this main wrapper on some systems.
-                # Add switch to use supersampled PSF from LSST pipeline
-                if __name__ == '__main__':
-                    get_user_config()
-                    initialize_database()
-                    read_convert_skysub_character_catalog()
-                    plate_solve_all_frames()
-                    calc_common_and_total_footprint_and_save()
-                    query_gaia_stars()
-                    extract_all_stamps()
-                    model_all_psfs()
-                    do_star_photometry()
-                    calculate_coefficient()
-                    calculate_zeropoints()
-                    prepare_roi_file()
-                    do_modelling_of_roi()
+                    # Lightcurver requires this main wrapper on some systems.
+                    # Add switch to use supersampled PSF from LSST pipeline
+                    if __name__ == '__main__':
+                        get_user_config()
+                        initialize_database()
+                        read_convert_skysub_character_catalog()
+                        plate_solve_all_frames()
+                        calc_common_and_total_footprint_and_save()
+                        query_gaia_stars()
+                        extract_all_stamps()
+                        model_all_psfs()
+                        do_star_photometry()
+                        calculate_coefficient()
+                        calculate_zeropoints()
+                        prepare_roi_file()
+                        do_modelling_of_roi()
 
-            elif other_args["method"] == "lsst_supersampled_psf":
-                # insert some code here from Shenming's notebook on 
-                # calculating supersampled PSF
-                # insert some code here to make a h5 file from this for starred
-                pass
+                elif other_args["method"] == "lsst_supersampled_psf":
+                    # insert some code here from Shenming's notebook on 
+                    # calculating supersampled PSF
+                    # insert some code here to make a h5 file from this for starred
+                    pass
 
-            else:
-                print("please pass an argument for a valid PSF construction method \n These currently include 'lightcurver' and 'lsst_supersampled_psf'.")
-                exit()
+                else:
+                    print("please pass an argument for a valid PSF construction method \n These currently include 'lightcurver' and 'lsst_supersampled_psf'.")
+                    exit()
 
-            if verbose:
-                print("cleaning directories of temp images")
-            
-            clean_directory_structure_for_lightcurver(
-                base_dir=other_args["base_working_directory"],
-                blacklist_dirs=other_args["blacklist_dirs"]
-            )
+                if verbose:
+                    print("cleaning directories of temp images")
+                
+                clean_directory_structure_for_lightcurver(
+                    base_dir=other_args["base_working_directory"],
+                    blacklist_dirs=other_args["blacklist_dirs"]
+                )
     if verbose:
         print("removing tmp config file")
     os.remove(this_config_file)
