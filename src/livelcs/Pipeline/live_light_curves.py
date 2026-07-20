@@ -162,7 +162,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                     verbose=verbose
                 )
 
-            if other_args["method"] == "lightcurver":
+            if other_args["psf_method"] == "lightcurver":
 
                 # Lightcurver requires this main wrapper on some systems.
                 # Add switch to use supersampled PSF from LSST pipeline
