@@ -154,6 +154,8 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 extract_image(
                     butler,
                     reference_id,
+                    ra,
+                    dec,
                     raw_dir=raw_dir,
                     cutout_size=cutout_size,
                     verbose=verbose
