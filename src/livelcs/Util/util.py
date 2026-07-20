@@ -244,7 +244,9 @@ def extract_image(
     if verbose: 
         print(f"current id = {visit_id}")
 
-    file_to_write = raw_dir+"/LSST"+str(visit_id)+".fits"
+    file_to_write = path.normpath(
+        raw_dir+"/LSST"+str(visit_id)+".fits"
+    )
 
     # This is required for cutout generation (not implimented at this point)
     center_point = geom.SpherePoint(
