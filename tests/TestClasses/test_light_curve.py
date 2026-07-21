@@ -30,15 +30,15 @@ class TestLightCurve:
     def test_save_light_curve(self):
         import os
         file_name_to_be_deleted = "./garbage_test_file"
-        assert not os.path.isfile(file_name_to_be_deleted+".lc")
+        assert not os.path.isfile(file_name_to_be_deleted+"_lc.json")
         self.empty_light_curve = LightCurve()
         self.mock_light_curve = LightCurve(data=self.mock_data)
 
         self.empty_light_curve.save_light_curve(
             file_name=file_name_to_be_deleted,
         )
-        assert os.path.isfile(file_name_to_be_deleted+".lc")
-        os.remove(file_name_to_be_deleted+".lc")
+        assert os.path.isfile(file_name_to_be_deleted+"_lc.json")
+        os.remove(file_name_to_be_deleted+"_lc.json")
         assert not os.path.isfile(file_name_to_be_deleted+".lc_alt")
         self.mock_light_curve.save_light_curve(
             file_name=file_name_to_be_deleted,
@@ -46,6 +46,7 @@ class TestLightCurve:
         )
         assert os.path.isfile(file_name_to_be_deleted+".lc_alt")
         os.remove(file_name_to_be_deleted+".lc_alt")
+
     
     def test_update_light_curve(self):
         self.empty_light_curve = LightCurve()

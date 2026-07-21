@@ -38,14 +38,14 @@ class LightCurve:
         else:
             self.time_last_updated = update_time
 
-    def save_light_curve(self, file_name, extension=".lc"):
+    def save_light_curve(self, file_name, extension="_lc.json"):
         '''Save the current light curve
         file_name: string representing the full path of the file name
         extension: extension to use in the saved file name, default is .lc
         '''
-        import pickle
-        with open(file_name + extension, 'wb') as f:
-            pickle.dump(self, f)
+        import json
+        with open(file_name + extension, 'w') as f:
+            json.dump(self.data, f)
         return None
     
 

@@ -376,7 +376,6 @@ def test_check_new_light_curve_data():
 def test_load_light_curve():
     # this test requires the lightcurve object
     from livelcs.Classes.light_curve import LightCurve
-    import pickle
     import os
     
     mock_image_1_data = {
@@ -404,11 +403,11 @@ def test_load_light_curve():
 
     working_directory = "./"
     file_name_to_be_deleted = "test_light_curve"
-    extension = ".lc"
+    extension = "_lc.json"
 
     mock_light_curve.save_light_curve(
         file_name=os.path.join(working_directory,file_name_to_be_deleted),
-        extension = ".lc"
+        extension = "_lc.json"
     )
 
     loaded_light_curve = util.load_light_curve(

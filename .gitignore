@@ -170,6 +170,7 @@ cython_debug/
 *.h5py
 *.h5
 *.lc
+*_lc.json
 
 # vscode
 .vscode*

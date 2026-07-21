@@ -412,14 +412,14 @@ def check_new_light_curve_data(new_data):
     return new_data_bands
         
 
-def load_light_curve(file_name, directory="./extracted_light_curves/", extension=".lc"):
-    '''load the pickled light curve from a file
+def load_light_curve(file_name, directory="./extracted_light_curves/", extension="_lc.json"):
+    '''load the json light curve from a file
     file_name: string representing the path of the file to load
     directory: string representing the directory containing the file to load
     extension: extension of the lightcurve object, default is .lc
     return: lightcurve object
     '''
-    import pickle
+    import json
     from livelcs.Classes.light_curve import LightCurve
     import os
     if os.path.isdir(directory) is False:
@@ -427,9 +427,10 @@ def load_light_curve(file_name, directory="./extracted_light_curves/", extension
     if os.path.isfile(os.path.join(directory+file_name)+extension) is False:
         blank_light_curve = LightCurve()
         with open(os.path.join(directory+file_name)+extension, 'wb') as f:
-            pickle.dump(blank_light_curve, f)
+            json.dump(blank_light_curve, f)
     with open(os.path.join(directory,file_name)+extension, 'rb') as f:
-        loaded_light_curve = pickle.load(f)
+        loaded_light_curve_data = json.load(f)
+        loaded_light_curve = LightCurve(data=loaded_light_curve_data)
     assert type(loaded_light_curve) == LightCurve
     if "time_last_updated" not in loaded_light_curve.data:
         loaded_light_curve["time_last_updated"] = None
