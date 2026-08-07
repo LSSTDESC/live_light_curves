@@ -1,6 +1,20 @@
 '''main file for pipeline'''
 
+# We need access to the environmental variables because that's where the lightcurver config is stored
+import os
 import sys
+
+
+# LSST specific imports 
+from lsst.daf.butler import (
+    Timespan,
+    Butler
+)
+#import lsst.sphgeom as sphgeom
+#import lsst.geom as geom
+
+
+# Self imports 
 from livelcs.Util.util import (
     find_lsst_config,
     parse_arguments,
@@ -12,39 +26,45 @@ from livelcs.Util.util import (
     extract_ra_dec_target_string,
     extract_image
 )
-#from astropy.time import Time as astro_time
-#import astropy.units as u
-from lsst.daf.butler import (
-    Timespan,
-    Butler
+
+
+### External imports 
+from numpy import linspace
+from pandas import DataFrame
+import tqdm
+
+
+
+### starred imports
+from starred.deconvolution.deconvolution import (
+    Deconv, 
+    setup_model
 )
-from lightcurver.structure.user_config import get_user_config
-from lightcurver.structure.database import initialize_database
-from lightcurver.pipeline.task_wrappers import read_convert_skysub_character_catalog
-from lightcurver.pipeline.task_wrappers import plate_solve_all_frames, calc_common_and_total_footprint_and_save
-from lightcurver.processes.star_querying import query_gaia_stars
-from lightcurver.processes.cutout_making import extract_all_stamps
-from lightcurver.processes.psf_modelling import model_all_psfs
-from lightcurver.processes.normalization_calculation import calculate_coefficient
-from lightcurver.processes.star_photometry import do_star_photometry
-from lightcurver.processes.absolute_zeropoint_calculation import calculate_zeropoints
-from lightcurver.processes.roi_file_preparation import prepare_roi_file
-from lightcurver.processes.roi_modelling import do_modelling_of_roi
+from starred.deconvolution.loss import (
+    Loss, 
+    Prior
+)
+from starred.optim.optimization import Optimizer
+from starred.utils.noise_utils import propagate_noise
+from starred.deconvolution.parameters import ParametersDeconv
+from starred.plots.plot_function import (
+    view_deconv_model, 
+    plot_loss,  # remove
+    plot_deconvolution # remove
+)
+from starred.procedures.deconvolution_routines import multi_steps_deconvolution
+
+
+
+### excess imports (for now)
 #import Starred
 #import PYCS
 #import pyvo
 #import subprocess
 #import argparse
 #import CCE/HME detection
-from numpy import linspace
-from pandas import DataFrame
-import tqdm
-
-#import lsst.sphgeom as sphgeom
-#import lsst.geom as geom
-
-# We need access to the environmental variables because that's where the lightcurver config is stored
-import os
+#from astropy.time import Time as astro_time
+#import astropy.units as u
 
 
 
@@ -118,13 +138,6 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
 
     time_interval = [time_start, time_stop]
 
-    ### make temporary configuration file to place ROI at current objects 
-    this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path)
-    os.environ['LIGHTCURVER_CONFIG'] = this_config_file
-    if not os.path.isdir(raw_dir):
-        os.mkdir(raw_dir)
-    # include this yaml file in cleanup step, fast enough to make again and we don't want thousands of mostly identical files
-
     # do we need this list?
     current_position = []
 
@@ -135,6 +148,13 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         # within the next loop. This way Lightcurver or any other method can 
         # focus on a single visit image to get the psf, do the processing, and 
         # most importantly clean up before the next object. 
+
+        ### make temporary configuration file to place ROI at current objects 
+        this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path)
+        os.environ['LIGHTCURVER_CONFIG'] = this_config_file
+        if not os.path.isdir(raw_dir):
+            os.mkdir(raw_dir)
+        # include this yaml file in cleanup step, fast enough to make again and we don't want thousands of mostly identical files
 
         # name this "reference list" or something similar.
         band_reference_ids = query_coords(
@@ -163,29 +183,16 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 )
 
                 if other_args["psf_method"] == "lightcurver":
-
-                    # Lightcurver requires this main wrapper on some systems.
-                    # Add switch to use supersampled PSF from LSST pipeline
-                    if __name__ == '__main__':
-                        get_user_config()
-                        initialize_database()
-                        read_convert_skysub_character_catalog()
-                        plate_solve_all_frames()
-                        calc_common_and_total_footprint_and_save()
-                        query_gaia_stars()
-                        extract_all_stamps()
-                        model_all_psfs()
-                        do_star_photometry()
-                        calculate_coefficient()
-                        calculate_zeropoints()
-                        prepare_roi_file()
-                        do_modelling_of_roi()
+                    from util_lightcurver import run_lightcurver
+                    run_lightcurver()
+                    
 
                 elif other_args["method"] == "lsst_supersampled_psf":
                     # insert some code here from Shenming's notebook on 
                     # calculating supersampled PSF
                     # insert some code here to make a h5 file from this for starred
-                    pass
+                    print("Sorry, not supported (yet)! We have plans to support this method relatively soon.")
+                    exit()
 
                 else:
                     print("please pass an argument for a valid PSF construction method \n These currently include 'lightcurver' and 'lsst_supersampled_psf'.")
@@ -198,9 +205,25 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                     base_dir=other_args["base_working_directory"],
                     blacklist_dirs=other_args["blacklist_dirs"]
                 )
+
+        # at this point, we've removed all temp files except the and should be left with a database file and an h5 file stored 
+        # in the path indicated by flag --base_working_directory
+        path_to_h5_data = os.path.join(other_args["base_working_directory"], band, "regions.h5")
+        path_to_database = os.path.join(other_args["base_working_directory"], band, "database.sqlite3")
+
+        print(path_to_database)
+        print(path_to_h5_data)
+
+
     if verbose:
         print("removing tmp config file")
     os.remove(this_config_file)
+
+    # at this point, we've removed all temp files and should be left with a database file and an h5 file stored 
+    # in the path indicated by flag --base_working_directory
+
+
+
 
 
     

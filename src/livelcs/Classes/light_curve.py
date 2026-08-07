@@ -38,6 +38,8 @@ class LightCurve:
         else:
             self.time_last_updated = update_time
 
+### NEED TO INCLUDE ASTROMETRY OF EACH OBJECT IN ROI. NEED RA/DEC PER IMAGE IN LC.
+### ALSO NEED SOME RELATIVE PATH OF A JPEG PSF PER IMAGE PER BAND PER VISIT TO SEND TO WEBPAGE
     def save_light_curve(self, file_name, extension="_lc.json"):
         '''Save the current light curve
         file_name: string representing the full path of the file name
@@ -48,7 +50,7 @@ class LightCurve:
             json.dump(self.data, f)
         return None
     
-
+## UPDATE LIGHT CURVE MUST ALSO STORE THE PSF AT EACH VISIT IMAGE / BAND / TIME
     def update_light_curve(self, new_data):
         '''Update the current light curve
         new_data: dictionary object with the same signature of the lightcurve

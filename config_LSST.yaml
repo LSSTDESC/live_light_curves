@@ -22,8 +22,7 @@
 workdir: ./LSST_data/reduced_data/
 # Then, list directories in which we are to look for your images. (no securities in place for filtering
 # files that are not images)
-raw_dirs:
-  - ./LSST_data/raw_data/
+raw_dirs: ./LSST_data/raw_data/
 
 # importing only the files matching the pattern below:
 files_match_pattern: "*.fits"
@@ -299,7 +298,7 @@ prepared_roi_cutouts_path: null
 #   'g_panstarrs', 'r_panstarrs', 'i_panstarrs', 'z_panstarrs', 'y_panstarrs', 'c_panstarrs', 'o_panstarrs'
 # where c_panstarrs and o_panstarrs are converted from the other bands using Eq. 2 of
 # https://iopscience.iop.org/article/10.1088/1538-3873/aabadf/pdf
-photometric_band: r_sdss
+photometric_band: 
 
 
 

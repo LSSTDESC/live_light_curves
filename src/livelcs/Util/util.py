@@ -312,7 +312,7 @@ def extract_ra_dec_target_string(input_series):
             print("input dataframe must have 'name', 'ra', and 'dec'")
             return None, None, None
 
-def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
+def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
     """Lightcurver requires a configuration file with the region of interest
     input as the parameter ROI for each object
     target: pd.DataFrame contianing information about the targeted object. Must contain "name", "ra", "dec" keys.
@@ -341,11 +341,20 @@ def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
             if toggle_path_to_raw_data is True:
                 raw_dir = current_line[4:-1]
                 toggle_path_to_raw_data=False
+            if current_line == 'photometric_band:\n':
+                if band in ['u', 'g']: approx_band = "g_sdss"
+                elif band == ['r']: approx_band = "r_sdss"
+                else: approx_band = "i_sdss"
+                current_line = current_line[:-2]+approx_band+"\n"
             new_text += current_line
             if current_line == 'ROI:\n':
                 new_text += f'  {target_string}:\n'
                 new_text += f'    coordinates: [{ra}, {dec}]\n'
+            if current_line == 'roi_name:\n':
+                new_text += f'  {target_string}_{band}:\n'
+            
             # not 100% sure if I need this, but other yaml files have similar lines
+            # probably can remove this, since ROI is modelled in Starred
             if current_line == "point_sources: #  'label: [ra, dec]'\n":
                 new_text += f'  A: [{ra}, {dec}]\n'
 
@@ -353,7 +362,7 @@ def make_temp_yaml_with_new_roi(target, original_path, extension="_tmp"):
     if os.path.isdir(tmp_yaml_path) is False:
         os.mkdir(tmp_yaml_path)
 
-    tmp_config_file_name = tmp_yaml_path+original_path.split("/")[-1][:-5]+"_"+target_string+extension+".yaml"
+    tmp_config_file_name = tmp_yaml_path+original_path.split("/")[-1][:-5]+f"_{band}_"+target_string+extension+".yaml"
 
     with open(tmp_config_file_name, 'w') as file:
         file.write(new_text)
