@@ -70,8 +70,8 @@ def parse_arguments(all_arguments=None):
         return arg_dict["targets"], arg_dict
     return current_targets, arg_dict
 
-def find_lsst_config(lsst_config_path=None):
-    '''tests a few likely paths for the LSST configuration file
+def find_lsst_config(target_string="config_LSST.yaml", lsst_config_path=None):
+    '''tests a few likely paths for the chosen file (for config_LSST.yaml and parse_header.py)
     lsst_config_path: path to search for the template LSST configuration file for Lightcurver
     return discovered configuration path
     '''
@@ -80,16 +80,16 @@ def find_lsst_config(lsst_config_path=None):
         if path.isfile(lsst_config_path):
             return lsst_config_path
     test_path = path.expanduser(
-            "~/live_light_curves/config_LSST.yaml"
+            f"~/live_light_curves/{target_string}"
         )
     if path.isfile(test_path):
         config_path = test_path
     else:
         test_paths = [
-            "./config_LSST.yaml",
-            "../config_LSST.yaml",
-            "../../config_LSST.yaml",
-            "../../../config_LSST.yaml",
+            f"./{target_string}",
+            f"../{target_string}",
+            f"../../{target_string}",
+            f"../../../{target_string}",
         ]
         for test_path in test_paths:
             if path.isfile(test_path):
@@ -99,7 +99,7 @@ def find_lsst_config(lsst_config_path=None):
         return config_path
     else: #pragma: no cover 
         # do not cover because we don't want to delete file for testing
-        print("Error finding LSST configuration file.")
+        print(f"Error finding {target_string}")
         return None
 
 
@@ -316,14 +316,15 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
     """Lightcurver requires a configuration file with the region of interest
     input as the parameter ROI for each object
     target: pd.DataFrame contianing information about the targeted object. Must contain "name", "ra", "dec" keys.
-    original_path: path to the template LSST config file
-
-    extension: additional extension to add to the file name
+    original_path: string representing the path to the template LSST config file
+    band: string representing the band being used
+    extension: string representing an additional extension to add to the file name
     return: newly generated temporary configuartion file name, directory for the raw files
     """
     import os
     import pandas as pd
     from shutil import copyfile
+    import find_lsst_config
 
     if type(target) is pd.DataFrame:
         target_string, ra, dec = extract_ra_dec_target_string(target.iloc[0])
@@ -331,6 +332,10 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
         target_string, ra, dec = extract_ra_dec_target_string(target)
     else:
         print("input target must be a pd.DataFrame or pd.Series")
+
+    original_header_parser_path = find_lsst_config(
+        target_string="LSST_data/reduced_data/header_parser/parse_header.py"
+    )
 
     new_text = ''
     toggle_path_to_raw_data = False
@@ -349,7 +354,7 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
                     os.mkdir(workdir)
                 if os.path.isdir(f'{workdir}/header_parser/') is False:
                     os.mkdir(f'{workdir}/header_parser/')
-                    copyfile(original_path, f'{workdir}/header_parser/parse_header.py')
+                    copyfile(original_header_parser_path, f'{workdir}/header_parser/parse_header.py')
             if current_line.startswith('raw_dirs:'):
                 raw_dir_str = current_line.split(sep=':')
                 if os.path.isdir(raw_dir_str[1].strip()+f'{target_string}/') is False:
