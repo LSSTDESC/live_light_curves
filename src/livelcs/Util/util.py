@@ -338,7 +338,7 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
             current_line = file.readline()
             if current_line.startswith('raw_dirs:'):
                 raw_dir_str = current_line.split(sep=':')
-                raw_dir = os.path.realpath(raw_dir_str[1])
+                raw_dir = os.path.realpath(raw_dir_str[1][:-2])
                 print(raw_dir)
             if current_line == 'photometric_band:\n':
                 if band in ['u', 'g']: approx_band = "g_sdss"
