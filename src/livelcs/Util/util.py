@@ -435,8 +435,7 @@ def load_light_curve(file_name, directory="./extracted_light_curves/", extension
         os.mkdir(directory)
     if os.path.isfile(os.path.join(directory+file_name)+extension) is False:
         blank_light_curve = LightCurve()
-        with open(os.path.join(directory+file_name)+extension, 'wb') as f:
-            json.dump(blank_light_curve, f)
+        blank_light_curve.save_light_curve(os.path.join(directory+file_name), extension=extension)
     with open(os.path.join(directory,file_name)+extension, 'rb') as f:
         loaded_light_curve_data = json.load(f)
         loaded_light_curve = LightCurve(data=loaded_light_curve_data)
