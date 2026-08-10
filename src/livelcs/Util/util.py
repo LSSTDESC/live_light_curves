@@ -417,9 +417,7 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
     if os.path.isdir(tmp_yaml_path) is False:
         os.mkdir(tmp_yaml_path)
 
-    tmp_config_file_name = os.path.normpath(
-        tmp_yaml_path+original_path.split("/")[-1][:-5]+f"_{band}_"+target_string+extension+".yaml"
-    )
+    tmp_config_file_name = tmp_yaml_path+original_path.split("/")[-1][:-5]+f"_{band}_"+target_string+extension+".yaml"
 
     with open(tmp_config_file_name, 'w') as file:
         file.write(new_text)
