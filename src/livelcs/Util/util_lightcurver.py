@@ -17,7 +17,6 @@ def run_lightcurver():
     ) as file:
         config = yaml.safe_load(file)
 
-    print(config['roi_name'])
     print(config['raw_dirs'])
     print(config['workdir'])
     print(Path(config['workdir']))
