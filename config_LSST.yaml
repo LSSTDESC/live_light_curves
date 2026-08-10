@@ -22,8 +22,7 @@
 workdir: ./LSST_data/reduced_data/
 # Then, list directories in which we are to look for your images. (no securities in place for filtering
 # files that are not images)
-raw_dirs: 
-  -./LSST_data/raw_data/
+raw_dirs: ./LSST_data/raw_data/
 
 # importing only the files matching the pattern below:
 files_match_pattern: "*.fits"
