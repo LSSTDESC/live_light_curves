@@ -189,7 +189,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 )
 
                 if other_args["psf_method"] == "lightcurver":
-                    from util_lightcurver import run_lightcurver
+                    from livelcs.Util.util_lightcurver import run_lightcurver
                     run_lightcurver()
                     
 
