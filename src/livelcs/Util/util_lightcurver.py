@@ -17,11 +17,6 @@ def run_lightcurver():
     ) as file:
         config = yaml.safe_load(file)
 
-    print(config['raw_dirs'])
-    print(config['workdir'])
-    print(Path(config['workdir']))
-
-
     ### lightcurver imports
     from lightcurver.structure.user_config import get_user_config
     from lightcurver.structure.database import initialize_database
@@ -42,8 +37,7 @@ def run_lightcurver():
     # lightcurver requires a main wrapper
     #if __name__ == '__main__':
     if True:
-        the_config = get_user_config()
-        print(the_config)
+        get_user_config()
         initialize_database()
         read_convert_skysub_character_catalog()
         plate_solve_all_frames()

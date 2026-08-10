@@ -337,6 +337,8 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
         target_string="LSST_data/reduced_data/header_parser/parse_header.py"
     )
 
+    print("HERE original_header_parser_path")
+
     new_text = ''
     toggle_path_to_raw_data = False
     with open(original_path, 'r') as file:        
