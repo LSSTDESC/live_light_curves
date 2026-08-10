@@ -147,7 +147,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
     time_interval = [time_start, time_stop]
 
     # do we need this list?
-    current_position = []
+    # current_position = []
 
 
     for band in lsst_bands:
@@ -161,9 +161,10 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path, band)
         os.environ['LIGHTCURVER_CONFIG'] = this_config_file
         # include this yaml file in cleanup step, fast enough to make again and we don't want thousands of mostly identical files
+        print(os.environ['LIGHTCURVER_CONFIG'], raw_dir)
 
-        # name this "reference list" or something similar.
-        band_reference_ids = query_coords(
+
+        reference_list = query_coords(
             butler,
             band,
             ra,
@@ -176,8 +177,8 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         )
 
         # only can query images if they exist
-        if len(band_reference_ids) > 0:
-            for reference_id in band_reference_ids:
+        if len(reference_list) > 0:
+            for reference_id in reference_list:
                 extract_image(
                     butler,
                     reference_id,
@@ -214,7 +215,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 )
 
         # only work with images if they exist
-        if len(band_reference_ids) > 0:
+        if len(reference_list) > 0:
             # at this point, we've removed all temp files and should be left with a database file and an h5 file stored 
             # in the path indicated by flag --base_working_directory
             path_to_h5_data = os.path.join(other_args["base_working_directory"], "regions.h5")
