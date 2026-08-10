@@ -62,6 +62,15 @@ from starred.plots.plot_function import (
 )
 from starred.procedures.deconvolution_routines import multi_steps_deconvolution
 
+from lightcurver.processes.star_querying import query_gaia_stars
+from lightcurver.processes.cutout_making import extract_all_stamps
+from lightcurver.processes.psf_modelling import model_all_psfs
+from lightcurver.processes.normalization_calculation import calculate_coefficient
+from lightcurver.processes.star_photometry import do_star_photometry
+from lightcurver.processes.absolute_zeropoint_calculation import calculate_zeropoints
+from lightcurver.processes.roi_file_preparation import prepare_roi_file
+from lightcurver.processes.roi_modelling import do_modelling_of_roi
+
 
 
 ### excess imports (for now)
@@ -191,6 +200,15 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 if other_args["psf_method"] == "lightcurver":
                     from livelcs.Util.util_lightcurver import run_lightcurver
                     run_lightcurver()
+                    if __name__ == '__main__:'
+                        query_gaia_stars()
+                        extract_all_stamps()
+                        model_all_psfs()
+                        do_star_photometry()
+                        calculate_coefficient()
+                        calculate_zeropoints()
+                        prepare_roi_file()
+                        do_modelling_of_roi()
                     
 
                 elif other_args["method"] == "lsst_supersampled_psf":
