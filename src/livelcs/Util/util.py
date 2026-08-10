@@ -342,7 +342,7 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
                 if os.path.isdir(workdir_str[1].strip()+f'{target_string}/') is False:
                     os.mkdir(workdir_str[1].strip()+f'{target_string}/')
                 workdir = workdir_str[1].strip()+f'{target_string}/{band}/'
-                current_line = workdir_str[0]+workdir
+                current_line = f'{workdir_str[0]}: {workdir} \n'
                 if os.path.isdir(workdir) is False:
                     os.mkdir(workdir)
             if current_line.startswith('raw_dirs:'):
@@ -350,7 +350,7 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
                 if os.path.isdir(raw_dir_str[1].strip()+f'{target_string}/') is False:
                     os.mkdir(raw_dir_str[1].strip()+f'{target_string}/')
                 raw_dir = raw_dir_str[1].strip()+f'{target_string}/{band}/'
-                current_line = raw_dir_str[0]+raw_dir
+                current_line = f'{raw_dir_str[0]}: {raw_dir} \n'
                 if os.path.isdir(raw_dir) is False:
                     os.mkdir(raw_dir)
             if current_line == 'photometric_band:\n':
