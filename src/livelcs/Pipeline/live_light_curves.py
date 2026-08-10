@@ -158,7 +158,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         # most importantly clean up before the next object. 
 
         ### make temporary configuration file to place ROI at current objects 
-        this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path)
+        this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path, band)
         os.environ['LIGHTCURVER_CONFIG'] = this_config_file
         if not os.path.isdir(raw_dir):
             os.mkdir(raw_dir)
