@@ -337,8 +337,6 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
         target_string="LSST_data/reduced_data/header_parser/parse_header.py"
     )
 
-    print("HERE", original_header_parser_path)
-
     new_text = ''
     toggle_path_to_raw_data = False
     with open(original_path, 'r') as file:        
@@ -348,22 +346,51 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
             # these checks adjust the current line
             if current_line.startswith('workdir:'):
                 workdir_str = current_line.split(sep=':')
-                if os.path.isdir(workdir_str[1].strip()+f'{target_string}/') is False:
-                    os.mkdir(workdir_str[1].strip()+f'{target_string}/')
-                workdir = workdir_str[1].strip()+f'{target_string}/{band}/'
+                if os.path.isdir(
+                    os.path.normpath(
+                        workdir_str[1].strip()+f'{target_string}/'
+                    )
+                ) is False:
+                    os.mkdir(
+                        os.path.normpath(
+                            workdir_str[1].strip()+f'{target_string}/'
+                        )
+                    )
+                workdir = os.path.normpath(
+                    workdir_str[1].strip()+f'{target_string}/{band}/'
+                )
                 current_line = f'{workdir_str[0]}: {workdir} \n'
                 if os.path.isdir(workdir) is False:
                     os.mkdir(workdir)
-                if os.path.isdir(f'{workdir}/header_parser/') is False:
-                    os.mkdir(f'{workdir}/header_parser/')
-                print('using copyfile to location:', f'{workdir}/header_parser/parse_header.py')
-                output = copyfile(original_header_parser_path, f'{workdir}/header_parser/parse_header.py')
-                print(output)
+                if os.path.isdir(
+                    os.path.normpath(
+                        f'{workdir}/header_parser/'
+                    )
+                ) is False:
+                    os.mkdir(
+                        os.path.normpath(
+                            f'{workdir}/header_parser/'
+                        )
+                    )
+                copyfile(
+                    original_header_parser_path, 
+                    os.path.normpath(f'{workdir}/header_parser/parse_header.py')
+                )
             if current_line.startswith('raw_dirs:'):
                 raw_dir_str = current_line.split(sep=':')
-                if os.path.isdir(raw_dir_str[1].strip()+f'{target_string}/') is False:
-                    os.mkdir(raw_dir_str[1].strip()+f'{target_string}/')
-                raw_dir = raw_dir_str[1].strip()+f'{target_string}/{band}/'
+                if os.path.isdir(
+                    os.path.normpath(
+                        raw_dir_str[1].strip()+f'{target_string}/'
+                    )   
+                ) is False:
+                    os.mkdir(
+                        os.path.normpath(
+                            raw_dir_str[1].strip()+f'{target_string}/'
+                        )
+                    )
+                raw_dir = os.path.normpath(
+                    raw_dir_str[1].strip()+f'{target_string}/{band}/'
+                )
                 current_line = f'{raw_dir_str[0]}: {raw_dir} \n'
                 if os.path.isdir(raw_dir) is False:
                     os.mkdir(raw_dir)
@@ -386,11 +413,13 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
             if current_line == "point_sources: #  'label: [ra, dec]'\n":
                 new_text += f'  A: [{ra}, {dec}]\n'
 
-    tmp_yaml_path = os.path.dirname(original_path)+"/tmp_configs/"
+    tmp_yaml_path = os.path.normpath(os.path.dirname(original_path)+"/tmp_configs/")
     if os.path.isdir(tmp_yaml_path) is False:
         os.mkdir(tmp_yaml_path)
 
-    tmp_config_file_name = tmp_yaml_path+original_path.split("/")[-1][:-5]+f"_{band}_"+target_string+extension+".yaml"
+    tmp_config_file_name = os.path.normpath(
+        tmp_yaml_path+original_path.split("/")[-1][:-5]+f"_{band}_"+target_string+extension+".yaml"
+    )
 
     with open(tmp_config_file_name, 'w') as file:
         file.write(new_text)

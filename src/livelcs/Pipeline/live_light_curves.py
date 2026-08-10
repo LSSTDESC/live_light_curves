@@ -161,7 +161,6 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path, band)
         os.environ['LIGHTCURVER_CONFIG'] = this_config_file
         # include this yaml file in cleanup step, fast enough to make again and we don't want thousands of mostly identical files
-        print(os.environ['LIGHTCURVER_CONFIG'], raw_dir)
 
 
         reference_list = query_coords(
@@ -192,7 +191,6 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 if other_args["psf_method"] == "lightcurver":
                     from livelcs.Util.util_lightcurver import run_lightcurver
                     run_lightcurver()
-                    print("lightcurver ran!")
                     
 
                 elif other_args["method"] == "lsst_supersampled_psf":
