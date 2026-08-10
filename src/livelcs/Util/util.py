@@ -317,11 +317,13 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
     input as the parameter ROI for each object
     target: pd.DataFrame contianing information about the targeted object. Must contain "name", "ra", "dec" keys.
     original_path: path to the template LSST config file
+
     extension: additional extension to add to the file name
     return: newly generated temporary configuartion file name, directory for the raw files
     """
     import os
     import pandas as pd
+    from shutil import copyfile
 
     if type(target) is pd.DataFrame:
         target_string, ra, dec = extract_ra_dec_target_string(target.iloc[0])
@@ -345,6 +347,9 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
                 current_line = f'{workdir_str[0]}: {workdir} \n'
                 if os.path.isdir(workdir) is False:
                     os.mkdir(workdir)
+                if os.path.isdir(f'{workdir}/header_parser/') is False:
+                    os.mkdir(f'{workdir}/header_parser/')
+                    copyfile(original_path, f'{workdir}/header_parser/parse_header.py')
             if current_line.startswith('raw_dirs:'):
                 raw_dir_str = current_line.split(sep=':')
                 if os.path.isdir(raw_dir_str[1].strip()+f'{target_string}/') is False:
