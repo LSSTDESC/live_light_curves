@@ -356,7 +356,9 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
                     os.mkdir(workdir)
                 if os.path.isdir(f'{workdir}/header_parser/') is False:
                     os.mkdir(f'{workdir}/header_parser/')
-                    copyfile(original_header_parser_path, f'{workdir}/header_parser/parse_header.py')
+                    print('using copyfile to location:', f'{workdir}/header_parser/parse_header.py')
+                    output = copyfile(original_header_parser_path, f'{workdir}/header_parser/parse_header.py')
+                    print(output)
             if current_line.startswith('raw_dirs:'):
                 raw_dir_str = current_line.split(sep=':')
                 if os.path.isdir(raw_dir_str[1].strip()+f'{target_string}/') is False:
