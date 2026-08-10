@@ -191,6 +191,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 if other_args["psf_method"] == "lightcurver":
                     from livelcs.Util.util_lightcurver import run_lightcurver
                     run_lightcurver()
+                    print("lightcurver ran!")
                     
 
                 elif other_args["method"] == "lsst_supersampled_psf":
