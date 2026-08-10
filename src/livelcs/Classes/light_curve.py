@@ -46,7 +46,7 @@ class LightCurve:
         extension: extension to use in the saved file name, default is .lc
         '''
         import json
-        with open(file_name + extension, 'wb') as f:
+        with open(file_name + extension, 'w') as f:
             json.dump(self.data, f)
         return None
     
