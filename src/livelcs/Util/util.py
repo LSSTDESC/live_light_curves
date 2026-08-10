@@ -335,6 +335,7 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
     with open(original_path, 'r') as file:        
         current_line = None
         while current_line is not '':
+            print(current_line)
             if current_line == 'raw_dirs:\n':
                 toggle_path_to_raw_data=True
             current_line = file.readline()
