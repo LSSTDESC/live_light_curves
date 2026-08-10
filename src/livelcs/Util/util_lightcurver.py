@@ -4,6 +4,25 @@
 
 def run_lightcurver():
 
+    import os
+    import yaml
+    from pathlib import Path
+
+    print("process of running lightcurver")
+
+    print(os.environ['LIGHTCURVER_CONFIG'])
+    with open(
+        os.environ['LIGHTCURVER_CONFIG'],
+        'r'
+    ) as file:
+        config = yaml.safe_load(file)
+
+    print(config['roi_name'])
+    print(config['raw_dirs'])
+    print(config['workdir'])
+    print(Path(config['workdir']))
+
+
     ### lightcurver imports
     from lightcurver.structure.user_config import get_user_config
     from lightcurver.structure.database import initialize_database
@@ -23,7 +42,8 @@ def run_lightcurver():
 
     # lightcurver requires a main wrapper
     if __name__ == '__main__':
-        get_user_config()
+        the_config = get_user_config()
+        print(the_config)
         initialize_database()
         read_convert_skysub_character_catalog()
         plate_solve_all_frames()
