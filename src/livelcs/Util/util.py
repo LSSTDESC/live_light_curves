@@ -353,11 +353,12 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
                 current_line = f'{raw_dir_str[0]}: {raw_dir} \n'
                 if os.path.isdir(raw_dir) is False:
                     os.mkdir(raw_dir)
-            if current_line == 'photometric_band:\n':
+            if current_line.startswith('photometric_band:'):
                 if band in ['u', 'g']: approx_band = "g_sdss"
                 elif band == ['r']: approx_band = "r_sdss"
                 else: approx_band = "i_sdss"
-                current_line = current_line[:-2]+approx_band+"\n"
+                split_line = current_line.split(sep=':')
+                current_line = f'{split_line[0]}: {approx_band} \n'
             new_text += current_line
             # these checks add new lines
             if current_line == 'ROI:\n':
