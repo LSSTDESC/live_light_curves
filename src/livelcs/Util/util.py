@@ -336,15 +336,22 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
         current_line = None
         while current_line is not '':
             current_line = file.readline()
+            # these checks adjust the current line
+            if current_line.startswith('workdir:'):
+                workdir_str = current_line.split(sep=':')
+                workdir = workdir_str[1].strip()+f'{target}/{band}/'
+                current_line = workdir_str[0]+workdir
             if current_line.startswith('raw_dirs:'):
                 raw_dir_str = current_line.split(sep=':')
-                raw_dir = raw_dir_str[1].strip()+f'{band}/'
+                raw_dir = raw_dir_str[1].strip()+f'{target}/{band}/'
+                current_line = raw_dir_str[0]+raw_dir
             if current_line == 'photometric_band:\n':
                 if band in ['u', 'g']: approx_band = "g_sdss"
                 elif band == ['r']: approx_band = "r_sdss"
                 else: approx_band = "i_sdss"
                 current_line = current_line[:-2]+approx_band+"\n"
             new_text += current_line
+            # these checks add new lines
             if current_line == 'ROI:\n':
                 new_text += f'  {target_string}:\n'
                 new_text += f'    coordinates: [{ra}, {dec}]\n'

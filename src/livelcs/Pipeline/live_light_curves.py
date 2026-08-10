@@ -157,10 +157,6 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         # focus on a single visit image to get the psf, do the processing, and 
         # most importantly clean up before the next object. 
 
-        print(working_series)
-        print(config_path)
-        print(band)
-
         ### make temporary configuration file to place ROI at current objects 
         this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path, band)
         os.environ['LIGHTCURVER_CONFIG'] = this_config_file
