@@ -40,7 +40,8 @@ def run_lightcurver():
     from lightcurver.processes.roi_modelling import do_modelling_of_roi
 
     # lightcurver requires a main wrapper
-    if __name__ == '__main__':
+    #if __name__ == '__main__':
+    if True:
         the_config = get_user_config()
         print(the_config)
         initialize_database()
