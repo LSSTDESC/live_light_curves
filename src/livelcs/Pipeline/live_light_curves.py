@@ -88,7 +88,7 @@ verbose = other_args["verbose"]
 # Include a string of the file path to the config_LSST file if not automatically detected.
 # Note that it must be named "config_LSST.yaml"
 known_config_path = other_args["known_lightcurver_config_path"] 
-config_path = find_lsst_config(known_config_path)
+config_path = find_lsst_config(lsst_config_path=known_config_path)
 
 
 # butler configuration, which needs to be updated as data releases come out
