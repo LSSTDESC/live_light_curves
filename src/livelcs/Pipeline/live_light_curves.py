@@ -200,7 +200,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 if other_args["psf_method"] == "lightcurver":
                     from livelcs.Util.util_lightcurver import run_lightcurver
                     run_lightcurver()
-                    if __name__ == '__main__:'
+                    if __name__ == '__main__':
                         query_gaia_stars()
                         extract_all_stamps()
                         model_all_psfs()
