@@ -160,8 +160,6 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         ### make temporary configuration file to place ROI at current objects 
         this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path, band)
         os.environ['LIGHTCURVER_CONFIG'] = this_config_file
-        if not os.path.isdir(raw_dir):
-            os.mkdir(raw_dir)
         # include this yaml file in cleanup step, fast enough to make again and we don't want thousands of mostly identical files
 
         # name this "reference list" or something similar.
