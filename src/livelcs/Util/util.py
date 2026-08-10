@@ -446,10 +446,19 @@ def load_light_curve(file_name, directory="./extracted_light_curves/", extension
     return loaded_light_curve
 
 
+def extract_table_from_database(path_to_database, table_to_extract):
+    '''This function queries the database file for a specific table to extract
+    param path_to_database: string representing the path to a sqlite3 database
+    param table_to_extract: string representing the name of the table to extract
+    return: Pandas table with the requested label
+    '''
+    from sqlite3 import connect
+    from pandas import read_sql_query
 
-
-
-
+    query = f"SELECT * FROM {table_to_extract}"
+    with connect(path_to_database) as database:
+        extracted_table = read_sql_query(query, database)
+    return extracted_table
 
 
 def send_alert():

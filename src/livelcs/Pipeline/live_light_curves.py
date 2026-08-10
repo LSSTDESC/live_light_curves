@@ -24,15 +24,23 @@ from livelcs.Util.util import (
     load_light_curve, 
     clean_directory_structure_for_lightcurver,
     extract_ra_dec_target_string,
-    extract_image
+    extract_image, 
+    extract_table_from_database
 )
 
 
 ### External imports 
-from numpy import linspace
+from numpy import (
+    linspace,
+    max,
+    nan_to_num,
+    asarray,
+    zeros, 
+    std
+)
 from pandas import DataFrame
 import tqdm
-
+from h5py import File
 
 
 ### starred imports
@@ -206,13 +214,85 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                     blacklist_dirs=other_args["blacklist_dirs"]
                 )
 
-        # at this point, we've removed all temp files except the and should be left with a database file and an h5 file stored 
+        # at this point, we've removed all temp files and should be left with a database file and an h5 file stored 
         # in the path indicated by flag --base_working_directory
-        path_to_h5_data = os.path.join(other_args["base_working_directory"], band, "regions.h5")
-        path_to_database = os.path.join(other_args["base_working_directory"], band, "database.sqlite3")
+        path_to_h5_data = os.path.join(other_args["base_working_directory"], "regions.h5")
+        path_to_database = os.path.join(other_args["base_working_directory"], "database.sqlite3")
 
         print(path_to_database)
         print(path_to_h5_data)
+
+        zpt_table = extract_table_from_database(path_to_database, 'absolute_zeropoints')
+        frames_table = extract_table_from_database(path_to_database, 'frames')
+
+        times = frames_table['mjd'].to_numpy()
+        seeings = frames_table['seeing_arcseconds'].to_numpy()
+        zeropoints = zpt_table['zeropoint'].to_numpy()
+
+        narrow_psfs = []
+        data_roi = []
+        noisemaps = []
+        # note: we have all times in "times", but some of these correspond to nan images
+        mjds = [] 
+
+        with File(path_to_h5_data, "r") as file:
+
+            for index, frame in enumerate(file['frames']):
+                for key in file['frames'][frame].keys():
+                    # psf key is labeled with a series of star names, and differs between frames
+                    if key.startswith("psf"):
+                        current_psf_key = key
+                frame_data = asarray(
+                    file['frames'][frame]['data']['ROI']
+                )
+                if nan_to_num(
+                    max(frame_data), 
+                    nan=-9999. # this is just a code number
+                ) == -9999:
+                    continue
+                frame_narrow_psf = asarray(
+                    file['frames'][frame][current_psf_key]['narrow_psf']
+                )
+                frame_noisemap = asarray(
+                    file['frames'][frame]['noisemap']['ROI']
+                )
+                mjds.append(times[index])
+                data_roi.append(frame_data)
+                narrow_psfs.append(frame_narrow_psf)
+                noisemaps.append(frame_noisemap)
+
+        mjds = asarray(mjds)
+        narrow_psfs = asarray(narrow_psfs)
+        noisemaps = asarray(noisemaps)
+        data_roi = asarray(data_roi)
+
+        im_size = data_roi.shape[1]
+        im_size_up = narrow_psfs.shape[1]
+        epochs = data_roi.shape[0]
+
+        #sigma_2 = zeros((epochs, im_size, im_size))
+        sigma_sky_2 = asarray(
+            [
+                std(data_roi[ii, int(0.9 * im_size):, int(0.9 * im_size):]) for ii in range(epochs)
+            ]
+        ) ** 2
+
+        sigma_2 = asarray(
+            [
+                sigma_sky_2[ii] + data_roi[ii].clip(min=0) for ii in range(epochs)
+            ]
+        )
+
+        scale = max(data_roi)
+        normalization = data_roi[0].max() / 100
+        data_roi /= normalization
+        sigma_2 /= normalization
+
+        offset = (im_size-1)/2
+                
+
+        ## TO GET PROPER FLUXES, I need:
+        # zeropoints, mjds, and seeings
 
 
     if verbose:
