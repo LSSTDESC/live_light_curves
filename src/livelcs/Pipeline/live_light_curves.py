@@ -31,14 +31,7 @@ from livelcs.Util.util import (
 
 
 ### External imports 
-from numpy import (
-    linspace,
-    max,
-    nan_to_num,
-    asarray,
-    zeros, 
-    std
-)
+import numpy as np
 from pandas import DataFrame
 import tqdm
 from h5py import File
@@ -142,7 +135,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
 
     ## not needed now that I will query all relevant times, then go visit image by visit image
     #time_interval = float(other_args["time_interval"]) # check in batches of time
-    #time_endpoints = linspace(time_start, time_stop, int((time_stop-time_start)/time_interval))
+    #time_endpoints = np.linspace(time_start, time_stop, int((time_stop-time_start)/time_interval))
     #time_intervals = [(time_endpoints[ii], time_endpoints[ii+1]) for ii in range(len(time_endpoints)-1)]
 
     time_interval = [time_start, time_stop]
@@ -246,19 +239,19 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
             im_size_up = narrow_psfs.shape[1]
             epochs = data_roi.shape[0]
 
-            sigma_sky_2 = asarray(
+            sigma_sky_2 = np.asarray(
                 [
-                    std(data_roi[ii, int(0.9 * im_size):, int(0.9 * im_size):]) for ii in range(epochs)
+                    np.std(data_roi[ii, int(0.9 * im_size):, int(0.9 * im_size):]) for ii in range(epochs)
                 ]
             ) ** 2
 
-            sigma_2 = asarray(
+            sigma_2 = np.asarray(
                 [
                     sigma_sky_2[ii] + data_roi[ii].clip(min=0) for ii in range(epochs)
                 ]
             )
 
-            scale = max(data_roi)
+            scale = np.max(data_roi)
             normalization = data_roi[0].max() / 100
             data_roi /= normalization
             sigma_2 /= normalization
