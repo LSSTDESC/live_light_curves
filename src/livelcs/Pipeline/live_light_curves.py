@@ -60,16 +60,7 @@ from starred.plots.plot_function import (
     plot_loss,  # remove
     plot_deconvolution # remove
 )
-from starred.procedures.deconvolution_routines import multi_steps_deconvolution
-
-from lightcurver.processes.star_querying import query_gaia_stars
-from lightcurver.processes.cutout_making import extract_all_stamps
-from lightcurver.processes.psf_modelling import model_all_psfs
-from lightcurver.processes.normalization_calculation import calculate_coefficient
-from lightcurver.processes.star_photometry import do_star_photometry
-from lightcurver.processes.absolute_zeropoint_calculation import calculate_zeropoints
-from lightcurver.processes.roi_file_preparation import prepare_roi_file
-from lightcurver.processes.roi_modelling import do_modelling_of_roi
+from starred.procedures.deconvolution_routines import multi_steps_deconvolutionls 
 
 
 
@@ -200,15 +191,6 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 if other_args["psf_method"] == "lightcurver":
                     from livelcs.Util.util_lightcurver import run_lightcurver
                     run_lightcurver()
-                    if __name__ == '__main__':
-                        query_gaia_stars()
-                        extract_all_stamps()
-                        model_all_psfs()
-                        do_star_photometry()
-                        calculate_coefficient()
-                        calculate_zeropoints()
-                        prepare_roi_file()
-                        do_modelling_of_roi()
                     
 
                 elif other_args["method"] == "lsst_supersampled_psf":
@@ -234,11 +216,8 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         if len(reference_list) > 0:
             # at this point, we've removed all temp files and should be left with a database file and an h5 file stored 
             # in the path indicated by flag --base_working_directory
-            path_to_h5_data = os.path.join(other_args["base_working_directory"], "regions.h5")
-            path_to_database = os.path.join(other_args["base_working_directory"], "database.sqlite3")
-
-            print(path_to_database)
-            print(path_to_h5_data)
+            path_to_h5_data = os.path.join(other_args["base_working_directory"], target_string, band, "regions.h5")
+            path_to_database = os.path.join(other_args["base_working_directory"], target_string, band, "database.sqlite3")
 
             zpt_table = extract_table_from_database(path_to_database, 'absolute_zeropoints')
             frames_table = extract_table_from_database(path_to_database, 'frames')
@@ -307,6 +286,8 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
             sigma_2 /= normalization
 
             offset = (im_size-1)/2
+
+            print("wow, did up to the starred modeling step")
                     
 
             ## TO GET PROPER FLUXES, I need:
@@ -325,8 +306,6 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
 
 
     
-for item in all_data:
-    print(item)
 exit()
 
 

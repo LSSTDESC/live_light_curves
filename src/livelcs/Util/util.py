@@ -290,14 +290,12 @@ def extract_ra_dec_target_string(input_series):
     import pandas as pd
 
     if type(input_series) is pd.Series:
-        print("gets to pd series check")
         try:
             ra = float(input_series["ra"])
             dec = float(input_series["dec"])
             target_string = str(input_series["name"])
             return target_string, ra, dec
         except:
-            print(input_series)
             print("input dataframe must have 'name', 'ra', and 'dec'")
             return None, None, None
     elif type(input_series) is pd.DataFrame:
@@ -308,7 +306,6 @@ def extract_ra_dec_target_string(input_series):
             target_string = str(input_series["name"].values[0])
             return target_string, ra, dec
         except:
-            print(input_series)
             print("input dataframe must have 'name', 'ra', and 'dec'")
             return None, None, None
 
