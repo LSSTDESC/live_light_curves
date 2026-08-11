@@ -28,7 +28,7 @@ def parse_arguments(all_arguments=None):
     all_args.add_argument("--targets", default=None, help="Path to the file containing the list of targets to monitor")
     all_args.add_argument("--verbose", default=False, help="Print extra output")
     all_args.add_argument("--time_start", default=float(40587), help="Start time in MJD for querying Butler, any known light curves will default to their latest time")
-    all_args.add_argument("--time_stop", default=None, help="Stop time in MJD for querying Butler, will default to current date if not provided")
+    all_args.add_argument("--time_stop", default=float(99999), help="Stop time in MJD for querying Butler, will default to current date if not provided")
     all_args.add_argument("--cutout_size", default=100, help="Size of cutouts in pixels")
     all_args.add_argument("--lsst_bands", default=list("ugrizy"), help="LSST bands to query")
     all_args.add_argument("--butler_config", default="dp1", help="Butler configuration to use")

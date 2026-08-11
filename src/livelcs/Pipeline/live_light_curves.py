@@ -130,7 +130,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         else:
             # initialize time start to MJD 40587 = Jan 1, 1970
             time_start = 40587
-
+    
     time_stop = float(other_args["time_stop"])
 
     cutout_size = int(other_args["cutout_size"]) # per edge in pixels, always square
