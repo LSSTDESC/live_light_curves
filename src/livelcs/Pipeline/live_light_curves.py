@@ -216,11 +216,20 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         if len(reference_list) > 0:
             # at this point, we've removed all temp files and should be left with a database file and an h5 file stored 
             # in the path indicated by flag --base_working_directory
-            path_to_h5_data = os.path.join(other_args["base_working_directory"], target_string, band, "regions.h5")
-            path_to_database = os.path.join(other_args["base_working_directory"], target_string, band, "database.sqlite3")
-
-            print(path_to_h5_data)
-            print(path_to_database)
+            path_to_h5_data = os.path.join(
+                other_args["base_working_directory"], 
+                'reduced_data',
+                target_string, 
+                band, 
+                "regions.h5"
+            )
+            path_to_database = os.path.join(
+                other_args["base_working_directory"], 
+                'reduced_data',
+                target_string, 
+                band, 
+                "database.sqlite3"
+            )
             
             zpt_table = extract_table_from_database(path_to_database, 'absolute_zeropoints')
             frames_table = extract_table_from_database(path_to_h5_data, 'frames')
