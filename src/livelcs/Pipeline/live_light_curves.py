@@ -56,7 +56,9 @@ from starred.plots.plot_function import (
 )
 from starred.procedures.deconvolution_routines import multi_steps_deconvolution
 
-
+# extra lightcurver imports 
+from lightcurver.utilities.starred_utilities import get_flux_uncertainties
+from lightcurver.utilities.lightcurves_postprocessing import group_observations, convert_flux_to_magnitude
 
 ### excess imports (for now)
 #import Starred
@@ -409,6 +411,114 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
             for key, value in kwargs_fixed.items():
                 for key2, value2 in value.items():
                     value[key2] = np.array(value2)
+
+            parameters = ParametersDeconv(
+                kwargs_init=kwargs_init,
+                kwargs_fixed=kwargs_fixed,
+                kwargs_up=kwargs_up,
+                kwargs_down=kwargs_down
+            )
+
+            loss = Loss(
+                data_roi,
+                model,
+                parameters,
+                data_noisemap**2,
+                regularization_terms='l1_starlet',
+                regularization_strength_scales=10.,
+                regularization_strength_hf=10.,
+                regularization_strength_positivity_ps=10.
+            )
+
+            optim = Optimizer(loss, parameters, method='adabelief')
+
+            # add support for changing number of iterations
+            best_fit, logL_best_fit, extra_fields, runtime = optim.minimize(max_iterations=1000)
+
+            kwargs_partial3 = deepcopy(parameters.best_fit_values(as_kwargs=True))
+
+            # one last round of optimization
+            kwargs_fixed = {
+                'kwargs_analytic': {'alpha': kwargs_partial3['kwargs_analytic']['alpha']},
+                'kwargs_background': dict(),
+                'kwargs_sersic': dict()
+            }
+
+            parameters = ParametersDeconv(
+                kwargs_init=kwargs_init,
+                kwargs_fixed=kwargs_fixed,
+                kwargs_up=kwargs_up,
+                kwargs_down=kwargs_down
+            )
+
+            loss = Loss(
+                data_roi,
+                model,
+                parameters,
+                data_noisemap**2,
+                regularization_terms='l1_starlet',
+                regularization_strength_scales=1, 
+                regularization_strength_hf=1, 
+                regularization_strength_positivity=100.,
+                regularization_strength_positivity_ps=100.,
+                regularization_strength_pts_source=0.025,
+                W=W
+            )
+
+            optim = Optimizer(loss, parameters, method='adabelief')
+
+            optimiser_optax_option = {
+                'max_iterations':1000,
+                'min_iterations':None,
+                'init_learning_rate':5e-4,
+                'schedule_learning_rate':0,
+                'restart_from_init':True,
+                'stop_at_loss_increase':False,
+                'progress_bar':True,
+                'return_param_history':True
+            }
+
+            best_fit, logL_best_fit, extra_fields, runtime = optim.minimize(**optimiser_optax_option)
+
+            kwargs_final = deepcopy(parameters.best_fit_values(as_kwargs=True))
+
+            flux_uncertainties = get_flux_uncertainties(
+                kwargs=kwargs_final,
+                kwargs_up=kwargs_up,
+                kwargs_down=kwargs_down,
+                data=data_roi,
+                noisemap=data_noisemap,
+                model=model
+            )
+
+            flux_values = kwargs_final['kwargs_analytic']['a']
+            scale = np.nanmax(data_roi)
+
+            fluxes = dict()
+
+            # some relative error in flux measurements
+            rel_norm_errs = 0.005
+
+            for jj, source_label in enumerate(point_sources.keys()):
+                curve = flux_values[jj::len(point_sources)]
+                d_curve_hessian = flux_uncertainties[jj::len(point_sources)]*scale
+                norm_abs_errs = np.array(curve)*rel_norm_errs
+                d_curve = (norm_abs_errs**2 + d_curve_hessian**2)**0.5
+                fluxes[f'{source_label}_flux'] = np.array(curve)
+                fluxes[f'{source_label}_d_flux'] = d_curve
+
+            fluxes['mjd'] = times_mjd
+            fluxes['zeropoint'] = np.ones_like(d_curve) * zeropoints
+
+            #notebook added chi2 per frame here, but I did not compute it
+
+            fluxes = DataFrame(fluxes)
+
+            mags = convert_flux_to_magnitude(fluxes)
+
+            print(mags)
+
+
 
             
 
