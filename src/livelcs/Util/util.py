@@ -511,6 +511,50 @@ def extract_table_from_database(path_to_database, table_to_extract):
         extracted_table = read_sql_query(query, database)
     return extracted_table
 
+def extract_frames_from_h5_file(path_to_h5_file, frames_table):
+    '''This function extracts the important information stored in the h5 file, 
+    which contains information about each frame.
+    param path_to_h5_file: string representing a path to the h5 file
+    param frames_table: pandas table with information about the frames
+    return: series of lists of information about each frame
+    '''
+    from h5py import File
+    import numpy as np
+
+    narrow_psfs = []
+    data_roi = []
+    data_noisemap = []
+    times_mjd = []
+
+    with File(path_to_h5_file, 'r') as h5file:
+        for index, frame in enumerate(h5file['frames']):
+            for key in h5file['frames']:
+                if key.startswith("psf"):
+                    current_psf_key = key
+                frame_narrow_psf = np.asarray(
+                    h5file['frames'][frame][current_psf_key]['narrow_psf']
+                )
+                frame_data = np.asarray(
+                    h5file['frames'][frame]['data']['ROI']
+                )
+                frame_noisemap = np.asarray(
+                    h5file['frames'][frame]['noisemap']['ROI']
+                )
+                # check if the frame has undefined or corrupted data
+                if np.nan_to_num(
+                    np.max(frame_data), nan=-9999
+                ) == -9999:
+                    continue
+                times_mjd.append(frames_table['mjd'].to_numpy()[index])
+                data_roi.append(frame_data)
+                narrow_psfs.append(frame_narrow_psf)
+                data_noisemap.append(frame_noisemap)
+    times_mjd = np.asarray(times_mjd)
+    data_roi = np.stack(data_roi)
+    narrow_psfs = np.stack(narrow_psfs)
+    data_noisemap = np.stack(data_noisemap)
+    return data_roi, narrow_psfs, data_noisemap, times_mjd
+
 
 def send_alert():
     # send out alerts as defined
