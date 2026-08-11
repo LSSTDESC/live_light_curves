@@ -413,7 +413,7 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
             if current_line == "point_sources: #  'label: [ra, dec]'\n":
                 new_text += f'  A: [{ra}, {dec}]\n'
 
-    tmp_yaml_path = os.path.normpath(os.path.dirname(original_path)+"/tmp_configs/")
+    tmp_yaml_path = os.path.dirname(original_path)+"/tmp_configs/"
     if os.path.isdir(tmp_yaml_path) is False:
         os.mkdir(tmp_yaml_path)
 
