@@ -528,7 +528,7 @@ def extract_frames_from_h5_file(path_to_h5_file, frames_table):
 
     with File(path_to_h5_file, 'r') as h5file:
         for index, frame in enumerate(h5file['frames']):
-            for key in h5file['frames']:
+            for key in h5file['frames'][frame].keys():
                 if key.startswith("psf"):
                     current_psf_key = key
             frame_narrow_psf = np.asarray(
