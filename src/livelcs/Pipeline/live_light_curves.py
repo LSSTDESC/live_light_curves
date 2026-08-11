@@ -60,7 +60,7 @@ from starred.plots.plot_function import (
     plot_loss,  # remove
     plot_deconvolution # remove
 )
-from starred.procedures.deconvolution_routines import multi_steps_deconvolutionls 
+from starred.procedures.deconvolution_routines import multi_steps_deconvolution
 
 
 
