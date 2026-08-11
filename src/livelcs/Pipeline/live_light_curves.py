@@ -310,6 +310,14 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
             # optimize translations
 
             kwargs_fixed = kwargs_init.copy()
+
+            print(kwargs_fixed.keys())
+            print(kwargs_fixed['kwargs_analytic'].keys())
+
+            from copy import deepcopy
+            test_dict = deepcopy(kwargs_init)
+            print(test_dict.keys())
+            print(test_dict['kwargs_analytic'].keys())
             del kwargs_fixed['kwargs_analytic']['dx']
             del kwargs_fixed['kwargs_analytic']['dy']
 
@@ -335,7 +343,73 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
 
             W = propagate_noise(
                 model, 
+                data_noisemap,
+                kwargs_partial1,
+                wavelet_type_list=['starlet'],
+                method='SLIT',
+                likelihood_type='chi2',
+                verbose=False,
+                upsampling_factor=subsampling_factor
+            )[0]
+
+            parameters = ParametersDeconv(
+                kwargs_init=kwargs_partial1,
+                kwargs_fixed=kwargs_fixed,
+                kwargs_up=kwargs_up,
+                kwargs_down=kwargs_down
             )
+
+            loss = Loss(
+                data=best_data,
+                deconv_class=model,
+                param_class=parameters,
+                sigma_2=best_noise**2,
+                regularization_terms='l1_starlet',
+                W=W,
+                regularization_strength_scales=1.0,
+                regularization_strength_hf=1.0,
+                regularization_strength_positivity=100.,
+                regularization_strength_positivity_ps=100.
+            )
+
+            optim = Optimizer(loss, parameters, method='adabelief')
+
+            optimiser_optax_option = {
+                'max_iterations':1000,
+                'init_learning_rate':1e-3,
+                'schedule_learning_rate':True
+            }
+
+            best_fit, logL_best_fit, extra_fields, runtime = optim.minimize(**optimiser_optax_option)
+            kwargs_partial2 = parameters.best_fit_values(as_kwargs=True).copy()
+
+            # Now use this initial model to kickstart the modeling of all frames
+
+            initial_background = kwargs_partial2['kwargs_background']['h'].reshape((im_size_up, im_size_up))
+            initial_c_x = kwargs_partial2['kwargs_analytic']['c_x']
+            initial_c_y = kwargs_partial2['kwargs_analytic']['c_y']
+
+            curves = []
+            for jj in range(n_point_sources):
+                curves.append(np.array(kwargs_partial2['kwargs_analytic']['a'][jj::n_point_sources]))
+
+            initial_a = [np.mean(curve) for curve in curves]
+
+            model, kwargs_init, kwargs_up, kwargs_down, kwargs_fixed = setup_model(
+                data=data_roi,
+                sigma_2=data_noisemap**2,
+                s=narrow_psfs,
+                xs=initial_c_x,
+                ys=initial_c_y,
+                subsampling_factor=subsampling_factor,
+                initial_a=len(data_roi)*initial_a
+            )
+
+
+
+
+
+
 
 
 
