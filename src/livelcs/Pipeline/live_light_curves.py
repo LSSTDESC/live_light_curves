@@ -219,8 +219,11 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
             path_to_h5_data = os.path.join(other_args["base_working_directory"], target_string, band, "regions.h5")
             path_to_database = os.path.join(other_args["base_working_directory"], target_string, band, "database.sqlite3")
 
+            print(path_to_h5_data)
+            print(path_to_database)
+            
             zpt_table = extract_table_from_database(path_to_database, 'absolute_zeropoints')
-            frames_table = extract_table_from_database(path_to_database, 'frames')
+            frames_table = extract_table_from_database(path_to_h5_data, 'frames')
 
             times = frames_table['mjd'].to_numpy()
             seeings = frames_table['seeing_arcseconds'].to_numpy()
