@@ -35,7 +35,7 @@ import numpy as np
 from pandas import DataFrame
 import tqdm
 from h5py import File
-
+from copy import deepcopy 
 
 ### starred imports
 from starred.deconvolution.deconvolution import (
@@ -309,15 +309,9 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
 
             # optimize translations
 
-            kwargs_fixed = kwargs_init.copy()
+            # need deepcopy because a shallow copy will also remove key/values from kwargs_init
+            kwargs_fixed = deepcopy(kwargs_init)
 
-            print(kwargs_fixed.keys())
-            print(kwargs_fixed['kwargs_analytic'].keys())
-
-            from copy import deepcopy
-            test_dict = deepcopy(kwargs_init)
-            print(test_dict.keys())
-            print(test_dict['kwargs_analytic'].keys())
             del kwargs_fixed['kwargs_analytic']['dx']
             del kwargs_fixed['kwargs_analytic']['dy']
 
@@ -381,7 +375,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
             }
 
             best_fit, logL_best_fit, extra_fields, runtime = optim.minimize(**optimiser_optax_option)
-            kwargs_partial2 = parameters.best_fit_values(as_kwargs=True).copy()
+            kwargs_partial2 = deepcopy(parameters.best_fit_values(as_kwargs=True))
 
             # Now use this initial model to kickstart the modeling of all frames
 
@@ -404,6 +398,21 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 subsampling_factor=subsampling_factor,
                 initial_a=len(data_roi)*initial_a
             )
+
+            kwargs_fixed = deepcopy(kwargs_init)
+            del kwargs_fixed['kwargs_analytic']['dx']
+            del kwargs_fixed['kwargs_analytic']['dy']
+            del kwargs_fixed['kwargs_analytic']['a']
+
+            # I have a note to double check that everything in kwargs_fixed is a numpy array instead of lists
+            # this still looks funky to me, but it works in the jupyter notebook
+            for key, value in kwargs_fixed.items():
+                for key2, value2 in value.items():
+                    value[key2] = np.array(value2)
+
+            
+
+
 
 
 
