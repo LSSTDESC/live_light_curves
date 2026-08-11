@@ -265,11 +265,92 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
 
             offset = (im_size-1)/2
 
-            print("wow, did up to the starred modeling step")
-                    
+            subsampling_factor = 2
 
-            ## TO GET PROPER FLUXES, I need:
-            # zeropoints, mjds, and seeings
+            ## look at best frames
+            best_percentile = np.percentile(seeings, 0)
+            lower_threshold_percentile = np.percentile(seeings, 10)
+            selected_indices = np.where((seeings >= best_percentile)*(seeings<lower_threshold_percentile))
+            best_data = data_roi[selected_indices]
+            best_noise = data_noisemap[selected_indices]
+            best_narrow_psfs = narrow_psfs[selected_indices]
+
+            # need to generalize to n point sources and connect to the csv/json input file
+            point_sources = dict()
+            n_point_sources = 1
+            generic_labels = list('abcdefghi')
+            generic_image_coordinate_guesses = [
+                (0, 0),
+                (0, 0+2),
+                (0+2, 0),
+                (0, 0-2),
+                (0-2, 0),
+                (0-2, 0+2),
+                (0+2, 0-2),
+                (0-2, 0-2),
+                (0+2, 0+2),                                                           
+            ]
+            intensities = []
+            initial_intensities = 10 * np.ones(len(generic_labels))
+            for jj in range(n_point_sources):
+                point_sources[generic_labels[jj]] = generic_image_coordinate_guesses[jj]
+                intensities.append(10)
+
+            initial_intensities = len(best_data) * initial_intensities
+
+            initial_x_values = np.array(
+                [coords[0] for _, coords in point_sources.items()]
+            )
+            initial_y_values = np.array(
+                [coords[1] for _, coords in point_sources.items()]
+            )
+
+            model, kwargs_init, kwargs_up, kwargs_down, kwargs_fixed = setup_model(
+                best_data,
+                best_noise**2,
+                best_narrow_psfs,
+                initial_x_values,
+                initial_y_values,
+                subsampling_factor,
+                initial_intensities
+            )
+
+            # optimize translations
+
+            kwargs_fixed = kwargs_init.copy()
+            del kwargs_fixed['kwargs_analytic']['dx']
+            del kwargs_fixed['kwargs_analytic']['dy']
+
+            parameters = ParametersDeconv(
+                kwargs_init=kwargs_init,
+                kwargs_fixed=kwargs_fixed,
+                kwargs_up=kwargs_up,
+                kwargs_down=kwargs_down
+            )
+
+            loss = Loss(best_data, model, parameters, best_noise**2)
+            optim = Optimizer(loss, parameters, method='l-bfgs-b')
+            best_fit, logL_best_fit, extra_fields, runtime = optim.minimize(maxiter=200)
+            kwargs_partial1 = parameters.best_fit_values(as_kwargs=True).copy()
+
+            # optimize other parameters
+
+            del kwargs_fixed['kwargs_background']['h']
+            del kwargs_fixed['kwargs_background']['mean']
+            del kwargs_fixed['kwargs_analytic']['a']
+            del kwargs_fixed['kwargs_analytic']['c_x']
+            del kwargs_fixed['kwargs_analytic']['c_y']
+
+            W = propagate_noise(
+                model, 
+            )
+
+
+
+
+            
+
+
 
 
     if verbose:

@@ -531,24 +531,24 @@ def extract_frames_from_h5_file(path_to_h5_file, frames_table):
             for key in h5file['frames']:
                 if key.startswith("psf"):
                     current_psf_key = key
-                frame_narrow_psf = np.asarray(
-                    h5file['frames'][frame][current_psf_key]['narrow_psf']
-                )
-                frame_data = np.asarray(
-                    h5file['frames'][frame]['data']['ROI']
-                )
-                frame_noisemap = np.asarray(
-                    h5file['frames'][frame]['noisemap']['ROI']
-                )
-                # check if the frame has undefined or corrupted data
-                if np.nan_to_num(
-                    np.max(frame_data), nan=-9999
-                ) == -9999:
-                    continue
-                times_mjd.append(frames_table['mjd'].to_numpy()[index])
-                data_roi.append(frame_data)
-                narrow_psfs.append(frame_narrow_psf)
-                data_noisemap.append(frame_noisemap)
+            frame_narrow_psf = np.asarray(
+                h5file['frames'][frame][current_psf_key]['narrow_psf']
+            )
+            frame_data = np.asarray(
+                h5file['frames'][frame]['data']['ROI']
+            )
+            frame_noisemap = np.asarray(
+                h5file['frames'][frame]['noisemap']['ROI']
+            )
+            # check if the frame has undefined or corrupted data
+            if np.nan_to_num(
+                np.max(frame_data), nan=-9999
+            ) == -9999:
+                continue
+            times_mjd.append(frames_table['mjd'].to_numpy()[index])
+            data_roi.append(frame_data)
+            narrow_psfs.append(frame_narrow_psf)
+            data_noisemap.append(frame_noisemap)
     times_mjd = np.asarray(times_mjd)
     data_roi = np.stack(data_roi)
     narrow_psfs = np.stack(narrow_psfs)
