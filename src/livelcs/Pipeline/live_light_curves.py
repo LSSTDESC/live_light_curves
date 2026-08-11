@@ -283,13 +283,12 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 (0-2, 0-2),
                 (0+2, 0+2),                                                           
             ]
-            intensities = []
-            initial_intensities = 10 * np.ones(len(generic_labels))
+            intensities_for_each_object = []
             for jj in range(n_point_sources):
                 point_sources[generic_labels[jj]] = generic_image_coordinate_guesses[jj]
-                intensities.append(10)
+                intensities_for_each_object.append(10)
 
-            initial_intensities = len(best_data) * initial_intensities
+            initial_intensities = len(best_data) * intensities_for_each_object
 
             initial_x_values = np.array(
                 [coords[0] for _, coords in point_sources.items()]
