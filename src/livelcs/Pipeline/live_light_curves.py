@@ -28,6 +28,7 @@ from livelcs.Util.util import (
     extract_table_from_database,
     extract_frames_from_h5_file
 )
+from livelcs.Classes.light_curve import LightCurve
 
 
 ### External imports 
@@ -529,7 +530,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 current_data[f'image_{ps}'][f'{band}_mag_err'] = mags[f'{ps}_d_mag']
 
             if not os.path.isfile(os.path.join(target_string, "_lc.json")):
-                this_light_curve = light_curve()
+                this_light_curve = LightCurve()
                 this_light_curve.save_light_curve(target_string)
             this_light_curve = load_light_curve(target_string)
             this_light_curve.update_light_curve(current_data)
