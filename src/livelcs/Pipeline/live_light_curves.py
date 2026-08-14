@@ -525,9 +525,9 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
             for ps in point_sources:
                 current_data[f'image_{ps}'] = dict()
 
-                current_data[f'image_{ps}'][f'{band}_time'] = mags['mjd']
-                current_data[f'image_{ps}'][f'{band}_mag'] = mags[f'{ps}_mag']
-                current_data[f'image_{ps}'][f'{band}_mag_err'] = mags[f'{ps}_d_mag']
+                current_data[f'image_{ps}'][f'{band}_time'] = mags['mjd'].tolist()
+                current_data[f'image_{ps}'][f'{band}_mag'] = mags[f'{ps}_mag'].tolist()
+                current_data[f'image_{ps}'][f'{band}_mag_err'] = mags[f'{ps}_d_mag'].tolist()
 
             if not os.path.isfile(os.path.join(target_string, "_lc.json")):
                 this_light_curve = LightCurve()
