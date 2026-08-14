@@ -47,7 +47,7 @@ class LightCurve:
         '''
         import json
         from os.path import join
-        with open(join(directory, file_name, extension), 'w') as f:
+        with open(join(directory, file_name) + extension, 'w') as f:
             json.dump(self.data, f)
         return None
     
