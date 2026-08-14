@@ -518,6 +518,24 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
 
             print(mags)
 
+            # convert light curves to a dictionary for lightcurve object
+            
+            current_data = dict()
+            for ps in point_sources:
+                current_data[f'image_{ps}'] = dict()
+
+                current_data[f'image_{ps}'][f'{band}_time'] = mags['mjd']
+                current_data[f'image_{ps}'][f'{band}_mag'] = mags[f'{ps}_mag']
+                current_data[f'image_{ps}'][f'{band}_mag_err'] = mags[f'{ps}_d_mag']
+
+            if not os.path.isfile(os.path.join(target_string, "_lc.json")):
+                this_light_curve = light_curve()
+                this_light_curve.save_light_curve(target_string)
+            this_light_curve = load_light_curve(target_string)
+            this_light_curve.update_light_curve(current_data)
+            this_light_curve.save_light_curve(target_string)
+
+        
 
 
             
