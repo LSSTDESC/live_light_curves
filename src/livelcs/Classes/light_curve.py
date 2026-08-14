@@ -40,13 +40,14 @@ class LightCurve:
 
 ### NEED TO INCLUDE ASTROMETRY OF EACH OBJECT IN ROI. NEED RA/DEC PER IMAGE IN LC.
 ### ALSO NEED SOME RELATIVE PATH OF A JPEG PSF PER IMAGE PER BAND PER VISIT TO SEND TO WEBPAGE
-    def save_light_curve(self, file_name, extension="_lc.json"):
+    def save_light_curve(self, file_name, directory="./extracted_light_curves/", extension="_lc.json"):
         '''Save the current light curve
         file_name: string representing the full path of the file name
         extension: extension to use in the saved file name, default is .lc
         '''
         import json
-        with open(file_name + extension, 'w') as f:
+        from os.path import join
+        with open(join(directory, file_name, extension), 'w') as f:
             json.dump(self.data, f)
         return None
     
