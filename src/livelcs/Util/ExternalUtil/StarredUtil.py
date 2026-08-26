@@ -163,7 +163,7 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
     c_y = k_optim_init_positions['kwargs_analytic']['c_y']
     source_names = k_optim_init_positions['source_names']
 
-    model, _, k_up, k_down, k_fixed = setup_model(
+    model, k_init, k_up, k_down, k_fixed = setup_model(
         data=data_roi,
         sigma_2=data_noisemap**2,
         s=narrow_psfs,
@@ -175,7 +175,7 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
     W = propagate_noise(
         model, 
         data_noisemap,
-        k_optim_init_positions,
+        k_init,
         wavelet_type_list=['starlet'],
         method='SLIT',
         likelihood_type='chi2',
@@ -184,7 +184,7 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
     )[0]
 
     parameters = ParametersDeconv(
-        kwargs_init=k_optim_init_positions,
+        kwargs_init=k_init,
         kwargs_fixed=k_fixed,
         kwargs_up=k_up,
         kwargs_down=k_down
