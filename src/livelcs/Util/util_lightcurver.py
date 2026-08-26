@@ -8,9 +8,6 @@ def run_lightcurver():
     import yaml
     from pathlib import Path
 
-    print("process of running lightcurver")
-
-    print(os.environ['LIGHTCURVER_CONFIG'])
     with open(
         os.environ['LIGHTCURVER_CONFIG'],
         'r'

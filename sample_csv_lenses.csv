@@ -1,4 +1,4 @@
-name,ra,dec,image_sep,n_img,Gmag,RPmag,BPmag,z_lens,z_lens_type,z_source,z_source_type,LEGACY SURVEY
+name,ra,dec,image_sep,n_sources,Gmag,RPmag,BPmag,z_lens,z_lens_type,z_source,z_source_type,LEGACY SURVEY
 J0011-0845,2.834350,-8.764070,1.9200,2.0,20.345,19.069,20.258,0.7260,PHOTO,1.7000,SPECTRO,https://www.legacysurvey.org/viewer?ra=2.834350&dec=-8.764070&layer=ls-dr10&zoom=16&gaia-edr3
 J0013+5119,3.348080,51.318220,2.9250,2.0,20.873,18.580,20.392,,,2.6300,SPECTRO,https://www.legacysurvey.org/viewer?ra=3.348080&dec=51.318220&layer=ls-dr10&zoom=16&gaia-edr3
 J0015-2526,3.933000,-25.438200,0.3700,2.0,16.124,15.590,15.985,,,0.9690,SPECTRO,https://www.legacysurvey.org/viewer?ra=3.933000&dec=-25.438200&layer=ls-dr10&zoom=16&gaia-edr3

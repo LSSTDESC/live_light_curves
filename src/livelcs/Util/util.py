@@ -435,7 +435,8 @@ def adjust_header(my_header, image_metadata):
 
 
 def clean_directory_structure_for_lightcurver(base_dir="./", blacklist_dirs=[]):
-    '''This cleans the directory structure that lightcurver filled with fits files
+    '''This cleans the directory structure that lightcurver filled with fits files.
+    THIS WILL DELETE ALL .jpg AND .fits FILES RECURSIVELY IN THE BASE DIRECTORY.
     base_dir: uppermost directory to clean of all files with .fits and .jpg extensions
     blacklist_dirs: list of directories to ignore in the cleaning process
     return: None
@@ -481,7 +482,7 @@ def load_light_curve(file_name, directory="./extracted_light_curves/", extension
     return: lightcurve object
     '''
     import json
-    from livelcs.Classes.light_curve import LightCurve
+    from src.livelcs.LightCurves.light_curve import LightCurve
     import os
     if os.path.isdir(directory) is False:
         os.mkdir(directory)
