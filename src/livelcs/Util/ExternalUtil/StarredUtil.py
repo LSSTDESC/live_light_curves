@@ -262,7 +262,7 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
         'schedule_learning_rate':0,
         'restart_from_init':True,
         'stop_at_loss_increase':False,
-        'progress_bar':False,
+        'progress_bar':True,
         'return_param_history':True
     }
 
