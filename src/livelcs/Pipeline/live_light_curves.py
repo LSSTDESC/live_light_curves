@@ -272,40 +272,48 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 extracted_frames_dict
             )
 
+            # identify point sources
             k_optim_init_positions = identify_point_sources(
                 extracted_frames_dict,
                 n_sources
             )
 
+            # optimize point source locations 
             opt_model, opt_kwargs, diagnostics = optimize_starred_fit(
                  extracted_frames_dict,
                  k_optim_init_positions
             )
 
+            # convert starred fit into magnitudes for each point source
             magnitude_dataframe = process_fluxes(
                 opt_model,
                 extracted_frames_dict,
                 opt_kwargs
             )
 
+            # extract only the data we need for our light curves
             light_curve_data = convert_mags_dataframe_to_light_curve(
                 magnitude_dataframe,
                 opt_kwargs,
                 band
             )
 
-            light_curve_file_path = os.path.join(
-                "./extracted_light_curves/",
-                target_string,
-                "_lc.json"
-            )
+            #light_curve_file_path = os.path.join(
+            #    "./extracted_light_curves/",
+            #    target_string,
+            #    "_lc.json"
+            #)
 
-            if not os.path.isfile(light_curve_file_path):
-                this_light_curve = LightCurve()
-                this_light_curve.save_light_curve(target_string)
-            this_light_curve = load_light_curve(target_string)
-            this_light_curve.update_light_curve(light_curve_data)
-            this_light_curve.save_light_curve(target_string)
+            #if not os.path.isfile(light_curve_file_path):
+            #    this_light_curve = LightCurve()
+            #    this_light_curve.save_light_curve(target_string)
+            #this_light_curve = load_light_curve(target_string)
+            #this_light_curve.update_light_curve(light_curve_data)
+            #this_light_curve.save_light_curve(target_string)
+        
+            # update our light curves with the new data
+            light_curve.update_light_curve(light_curve_data)
+        light_curve.save_light_curve(target_string)
         os.remove(this_config_file)
     
 exit()
