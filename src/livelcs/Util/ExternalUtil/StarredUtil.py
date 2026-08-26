@@ -164,8 +164,6 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
     c_y = deepcopy(k_optim_init_positions['kwargs_analytic']['c_y'])
     source_names = deepcopy(k_optim_init_positions['source_names'])
 
-    print(k_optim_init_positions)
-
     model, k_init, k_up, k_down, k_fixed = setup_model(
         data=data_roi,
         sigma_2=data_noisemap**2,
@@ -174,8 +172,6 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
         ys=c_y,
         subsampling_factor=upsampling_factor
     )
-
-    print(k_init)
 
     W = propagate_noise(
         model, 
@@ -196,10 +192,9 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
     )
 
     # remove all keys from fixed parameters
-    print(k_init)
     kwargs_fixed = {
         'kwargs_analytic': {
-            'alpha': k_optim_init_positions['kwargs_analytic']['alpha']
+            'alpha': k_init['kwargs_analytic']['alpha']
         },
         'kwargs_background': dict(),
         'kwargs_sersic': dict()
@@ -229,12 +224,10 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
 
     k_optim_prior_to_fine_tuning = deepcopy(parameters.best_fit_values(as_kwargs=True))
 
-    print(k_optim_prior_to_fine_tuning)
-
     # final round of optimization for fine tuning
     kwargs_fixed = {
         'kwargs_analytic': {
-            'alpha': k_optim_init_positions['kwargs_analytic']['alpha']
+            'alpha': k_init['kwargs_analytic']['alpha']
         },
         'kwargs_background': dict(),
         'kwargs_sersic': dict()
@@ -278,9 +271,6 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
         'progress_bar':True,
         'return_param_history':True
     }
-
-    print(k_optim_prior_to_fine_tuning)
-    print(parameters)
 
     # diagnostics = (best_fit, logL_best_fit, extra_fields, runtime)
     diagnostics = optim.minimize(**optimiser_optax_option)
