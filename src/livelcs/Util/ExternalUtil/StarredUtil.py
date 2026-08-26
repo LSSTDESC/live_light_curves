@@ -218,20 +218,18 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
 
     k_optim_prior_to_fine_tuning = deepcopy(parameters.best_fit_values(as_kwargs=True))
 
-    print(k_optim_prior_to_fine_tuning)
-
     # final round of optimization for fine tuning
-    #kwargs_fixed = {
-    #    'kwargs_analytic': {
-    #        'alpha': k_optim_init_positions['kwargs_analytic']['alpha']
-    #    },
-    #    'kwargs_background': dict(),
-    #    'kwargs_sersic': dict()
-    #}
+    kwargs_fixed = {
+        'kwargs_analytic': {
+            'alpha': k_optim_init_positions['kwargs_analytic']['alpha']
+        },
+        'kwargs_background': dict(),
+        'kwargs_sersic': dict()
+    }
 
     parameters = ParametersDeconv(
         kwargs_init=k_optim_prior_to_fine_tuning,
-        kwargs_fixed=k_fixed,
+        kwargs_fixed=kwargs_fixed,
         kwargs_up=k_up,
         kwargs_down=k_down
     )
