@@ -206,7 +206,7 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
         regularization_strength_positivity_ps=10.
     )
 
-    Optimizer(loss, parameters, method='adabelief')
+    optim = Optimizer(loss, parameters, method='adabelief')
     optimiser_optax_option = {
         'max_iterations': 1000,
         'init_learning_rate': 1e-3,
