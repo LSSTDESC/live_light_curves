@@ -13,7 +13,7 @@ def extract_ra_dec_target_string_sources(input_series):
             int: n_sources
         )
     """
-    from pandas import Series, Dataframe
+    from pandas import Series, DataFrame
 
     if type(input_series) is Series:
         try:
