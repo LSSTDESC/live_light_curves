@@ -35,7 +35,7 @@ def initialize_starred_variables(extracted_frames_dict):
 
     # relative scales, max is 1, normalization is 100% of the frame 0 data
     scale = np.nanmax(data_roi)
-    normalization = data_roi[0].nanmax() / 100
+    normalization = np.nanmax(data_roi[0]) / 100
     data_roi /= normalization
     sigma_2 /= normalization
 

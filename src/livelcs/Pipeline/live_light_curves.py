@@ -189,6 +189,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         # within the next loop. This way Lightcurver or any other method can 
         # focus on a single visit image to get the psf, do the processing, and 
         # most importantly clean up before the next object. 
+        
 
         ### make temporary configuration file to place ROI at current target location 
         this_config_file, raw_dir = make_temp_yaml_with_new_roi(working_series, config_path, band)
@@ -211,6 +212,9 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         # chunk into a "process"
         if len(reference_list) > 0:
             for reference_id in reference_list:
+                if verbose:
+                    import time
+                    t_start = time.time()
                 written_file = extract_image(
                     butler,
                     reference_id,
@@ -221,7 +225,8 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                     verbose=verbose
                 )
                 if verbose:
-                    print(f"wrote file {written_file} containing the extracted image")
+                    t_flag_1 = time.time()
+                    print(f"wrote file {written_file} containing the extracted image in {round(t_flag_1-t_start, 1)} seconds")
 
                 if other_args["psf_method"] == "lightcurver":
                     from livelcs.Util.ExternalUtil.LightcurverUtil import run_lightcurver
@@ -240,6 +245,8 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
 
                 if verbose:
                     print("cleaning directories of temp images")
+                    print(f"ran lightcurver in {round(time.time()-t_flag_1, 1)} seconds")
+
                 
                 clean_directory_structure_of_jpg_and_fits(
                     base_dir=other_args["base_working_directory"],
@@ -249,7 +256,8 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
             #===============
 
 
-
+            if verbose:
+                starred_tstart = time.time()
             # only work with images if they exist
             #if len(reference_list) > 0:
             # at this point, we've removed all temp files and should be left with a database file and an h5 file stored 
@@ -313,6 +321,9 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
         
             # update our light curves with the new data
             light_curve.update_light_curve(light_curve_data)
+
+            if verbose:
+                print(f"ran starred fitting procedure in {round(time.time()-starred_tstart, 2)} seconds")
         light_curve.save_light_curve(target_string)
         os.remove(this_config_file)
     
