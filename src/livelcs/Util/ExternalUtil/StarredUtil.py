@@ -84,7 +84,7 @@ def identify_point_sources(extracted_frames_dict, n_sources, fwhm=2):
     best_percentile = np.percentile(seeings, 0)
     lower_threshold_percentile = np.percentile(seeings, 10)
     selected_indices = np.where(
-        (seeings >= best_percentile)*(seeings<lower_threshold_percentile)
+        (seeings >= best_percentile)*(seeings<=lower_threshold_percentile)
     )
     best_data = data_roi[selected_indices]
     best_noise = data_noisemap[selected_indices]
