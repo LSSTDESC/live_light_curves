@@ -109,7 +109,7 @@ def identify_point_sources(extracted_frames_dict, n_sources, fwhm=2):
 
     initial_model, k_init, k_up, k_down, k_fixed = setup_model(
         data=best_data,
-        sigma_2=data_noisemap**2,
+        sigma_2=best_noise**2,
         s=best_narrow_psfs,
         xs=c_x,
         ys=c_y,
