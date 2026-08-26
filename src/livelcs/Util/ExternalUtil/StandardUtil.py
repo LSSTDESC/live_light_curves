@@ -20,10 +20,11 @@ def extract_ra_dec_target_string_sources(input_series):
             ra = float(input_series["ra"])
             dec = float(input_series["dec"])
             target_string = str(input_series["name"])
-            return target_string, ra, dec
+            n_sources = int(input_series['n_sources'])
+            return target_string, ra, dec, n_sources
         except:
             print("input dataframe must have 'name', 'ra', and 'dec'")
-            return None, None, None
+            return None, None, None, None
     elif type(input_series) is DataFrame:
 
         try:
