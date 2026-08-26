@@ -97,7 +97,7 @@ def load_light_curve(file_name, directory="./extracted_light_curves/", extension
     return: lightcurve object
     '''
     import json
-    from src.livelcs.LightCurves.light_curve import LightCurve
+    from livelcs.LightCurves.light_curve import LightCurve
     import os
     if os.path.isdir(directory) is False:
         os.mkdir(directory)
