@@ -210,6 +210,10 @@ def find_h5_and_database(
     else:
         path_to_database = override_database_path
 
+    print(path_to_h5_data, path_to_database)
+    from os.path import isfile
+    print(isfile(path_to_h5_data), isfile(path_to_database))
+
     return path_to_h5_data, path_to_database
 
 
