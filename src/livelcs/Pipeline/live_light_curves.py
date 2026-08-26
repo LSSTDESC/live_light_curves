@@ -275,14 +275,10 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
             # extract frames from tables
             extracted_frames_dict = extract_frames_from_h5_file(path_to_h5_data, frames_table, zpt_table)
 
-            print(extracted_frames_dict)
-
             # This starts the Starred process, convert into a function once it's working
             starred_parameters = initialize_starred_variables(
                 extracted_frames_dict
             )
-
-            print(extracted_frames_dict)
 
             # identify point sources
             k_optim_init_positions = identify_point_sources(
@@ -290,15 +286,11 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 n_sources
             )
 
-            print(extracted_frames_dict)
-
             # optimize point source locations 
             opt_model, opt_kwargs, diagnostics = optimize_starred_fit(
                  extracted_frames_dict,
                  k_optim_init_positions
             )
-
-            print(extracted_frames_dict)
 
             # convert starred fit into magnitudes for each point source
             magnitude_dataframe = process_fluxes(
