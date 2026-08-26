@@ -99,8 +99,8 @@ def identify_point_sources(extracted_frames_dict, n_sources, fwhm=2):
     source_names = []
 
     for source in range(n_sources):
-        x, y = np.unravel_index(np.argmax(best_data[0] * mask, best_data[0].shape))
-        amp = best_data[0, x, y]
+        x, y = np.unravel_index(np.argmax(best_data[0] * mask), best_data[0].shape)
+        #amp = best_data[0, x, y]
         # do not select this regions for the next sources by masking it out
         mask[x-fwhm:x+1+fwhm, y-fwhm:y+1+fwhm] = np.zeros((2*fwhm+1, 2*fwhm+1))
         c_x.append(x-offset)
