@@ -295,7 +295,7 @@ def process_fluxes(
     return: dictionary containing all source fluxes
     '''
 
-    from lightcurver.utilities.starred_utilities import get_flux_uncertainties,
+    from lightcurver.utilities.starred_utilities import get_flux_uncertainties
     from lightcurver.utilities.lightcurves_postprocessing import convert_flux_to_magnitude
     
     import numpy as np
