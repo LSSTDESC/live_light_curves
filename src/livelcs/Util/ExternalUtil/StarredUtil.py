@@ -18,7 +18,7 @@ def initialize_starred_variables(extracted_frames_dict):
     epochs = data_roi.shape[0]
 
     # get the subsampling factor
-    subsampling_factor = im_size_upsampled / im_size
+    subsampling_factor = int(im_size_upsampled / im_size)
 
     # from Starred tutorial notebook
     sigma_sky_2 = np.asarray(
@@ -157,7 +157,7 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
     data_noisemap = extracted_frames_dict['data_noisemap']
     narrow_psfs = extracted_frames_dict['narrow_psfs']
 
-    upsampling_factor = narrow_psfs.shape[1]/data_roi.shape[1]
+    upsampling_factor = int(narrow_psfs.shape[1]/data_roi.shape[1])
 
     c_x = k_optim_init_positions['kwargs_analytic']['c_x']
     c_y = k_optim_init_positions['kwargs_analytic']['c_y']
