@@ -124,7 +124,7 @@ def identify_point_sources(extracted_frames_dict, n_sources, fwhm=2):
     optim = Optimizer(loss, params, method='l-bfgs-b')
 
     # 200 iterations should be enough to get the point source locations
-    optim.minimize(max_iter=200)
+    optim.minimize(maxiter=200)
 
     k_optim_init_positions = params.best_fit_values(as_kwargs=True)
     k_optim_init_positions['source_names'] = source_names
