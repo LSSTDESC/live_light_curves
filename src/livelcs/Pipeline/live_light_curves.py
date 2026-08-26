@@ -245,7 +245,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                     base_dir=other_args["base_working_directory"],
                     blacklist_dirs=other_args["blacklist_dirs"]
                 )
-                os.remove(this_config_file)
+    
             #===============
 
 
@@ -306,7 +306,7 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
             this_light_curve = load_light_curve(target_string)
             this_light_curve.update_light_curve(light_curve_data)
             this_light_curve.save_light_curve(target_string)
-
+        os.remove(this_config_file)
     
 exit()
 
