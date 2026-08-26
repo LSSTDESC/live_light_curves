@@ -218,6 +218,8 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
 
     k_optim_prior_to_fine_tuning = deepcopy(parameters.best_fit_values(as_kwargs=True))
 
+    print(k_optim_prior_to_fine_tuning)
+
     # final round of optimization for fine tuning
     #kwargs_fixed = {
     #    'kwargs_analytic': {
