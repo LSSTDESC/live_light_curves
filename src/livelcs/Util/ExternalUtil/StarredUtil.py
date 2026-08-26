@@ -89,7 +89,7 @@ def identify_point_sources(extracted_frames_dict, n_sources, fwhm=2):
     best_noise = data_noisemap[selected_indices]
     best_narrow_psfs = narrow_psfs[selected_indices]
     offset = best_data.shape[1]
-    upsampling_factor = best_narrow_psfs.shape[1]/best_data.shape[1]
+    upsampling_factor = int(best_narrow_psfs.shape[1]/best_data.shape[1])
 
     # start identifying point sources based on brightest pixels
     # mask out chosen pixels as they are added
