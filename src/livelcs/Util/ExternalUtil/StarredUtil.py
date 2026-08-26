@@ -69,15 +69,16 @@ def identify_point_sources(extracted_frames_dict, n_sources, fwhm=2):
     from starred.deconvolution.parameters import ParametersDeconv
     from starred.deconvolution.loss import Loss
     from starred.optim.optimization import Optimizer
+    from copy import deepcopy
 
     generic_labels = list('abcdefghijklmnopqrstuvwxyz')
     if n_sources > len(generic_labels):
         raise NotImplementedError("too many sources provided, please update this function")
 
-    seeings = extracted_frames_dict['seeings']
-    data_roi = extracted_frames_dict['data_roi']
-    data_noisemap = extracted_frames_dict['data_noisemap']
-    narrow_psfs = extracted_frames_dict['narrow_psfs']
+    seeings = deepcopy(extracted_frames_dict['seeings'])
+    data_roi = deepcopy(extracted_frames_dict['data_roi'])
+    data_noisemap = deepcopy(extracted_frames_dict['data_noisemap'])
+    narrow_psfs = deepcopy(extracted_frames_dict['narrow_psfs'])
 
     #extract the top 10 percentile of frames based on seeing
     best_percentile = np.percentile(seeings, 0)
@@ -153,15 +154,15 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
     from copy import deepcopy
 
     # unpack some objects for model setup
-    data_roi = extracted_frames_dict['data_roi']
-    data_noisemap = extracted_frames_dict['data_noisemap']
-    narrow_psfs = extracted_frames_dict['narrow_psfs']
+    data_roi = deepcopy(extracted_frames_dict['data_roi'])
+    data_noisemap = deepcopy(extracted_frames_dict['data_noisemap'])
+    narrow_psfs = deepcopy(extracted_frames_dict['narrow_psfs'])
 
     upsampling_factor = int(narrow_psfs.shape[1]/data_roi.shape[1])
 
-    c_x = k_optim_init_positions['kwargs_analytic']['c_x']
-    c_y = k_optim_init_positions['kwargs_analytic']['c_y']
-    source_names = k_optim_init_positions['source_names']
+    c_x = deepcopy(k_optim_init_positions['kwargs_analytic']['c_x'])
+    c_y = deepcopy(k_optim_init_positions['kwargs_analytic']['c_y'])
+    source_names = deepcopy(k_optim_init_positions['source_names'])
 
     model, k_init, k_up, k_down, k_fixed = setup_model(
         data=data_roi,
@@ -174,7 +175,7 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
 
     W = propagate_noise(
         model, 
-        data_noisemap,
+        data_noisemap**2,
         k_init,
         wavelet_type_list=['starlet'],
         method='SLIT',
@@ -218,17 +219,17 @@ def optimize_starred_fit(extracted_frames_dict, k_optim_init_positions):
     k_optim_prior_to_fine_tuning = deepcopy(parameters.best_fit_values(as_kwargs=True))
 
     # final round of optimization for fine tuning
-    kwargs_fixed = {
-        'kwargs_analytic': {
-            'alpha': k_optim_init_positions['kwargs_analytic']['alpha']
-        },
-        'kwargs_background': dict(),
-        'kwargs_sersic': dict()
-    }
+    #kwargs_fixed = {
+    #    'kwargs_analytic': {
+    #        'alpha': k_optim_init_positions['kwargs_analytic']['alpha']
+    #    },
+    #    'kwargs_background': dict(),
+    #    'kwargs_sersic': dict()
+    #}
 
     parameters = ParametersDeconv(
         kwargs_init=k_optim_prior_to_fine_tuning,
-        kwargs_fixed=kwargs_fixed,
+        kwargs_fixed=k_fixed,
         kwargs_up=k_up,
         kwargs_down=k_down
     )
