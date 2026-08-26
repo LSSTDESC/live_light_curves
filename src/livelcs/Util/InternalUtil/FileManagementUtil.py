@@ -47,11 +47,12 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
     import pandas as pd
     from shutil import copyfile
     from livelcs.Util.util import find_lsst_config
+    from livelcs.Util.ExternalUtil.StandardUtil import extract_ra_dec_target_string_sources
 
     if type(target) is pd.DataFrame:
-        target_string, ra, dec = extract_ra_dec_target_string(target.iloc[0])
+        target_string, ra, dec, _ = extract_ra_dec_target_string_sources(target.iloc[0])
     elif type(target) is pd.Series:
-        target_string, ra, dec = extract_ra_dec_target_string(target)
+        target_string, ra, dec, _ = extract_ra_dec_target_string_sources(target)
     else:
         print("input target must be a pd.DataFrame or pd.Series")
 
