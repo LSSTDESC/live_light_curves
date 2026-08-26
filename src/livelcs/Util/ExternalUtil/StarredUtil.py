@@ -93,7 +93,7 @@ def identify_point_sources(extracted_frames_dict, n_sources, fwhm=2):
 
     # start identifying point sources based on brightest pixels
     # mask out chosen pixels as they are added
-    mask = np.oneslike(best_data[0])
+    mask = np.ones_like(best_data[0])
     c_x = []
     c_y = []
     source_names = []
