@@ -83,7 +83,7 @@ class LightCurve:
                         self.data[image][band+"_mag"].extend(new_data[image][band+"_mag"])
                         self.data[image][band+"_mag_err"].extend(new_data[image][band+"_mag_err"])
 
-        self.time_last_updated = astro_time.now()
+        self.time_last_updated = float(astro_time.now().mjd)
         self.data['time_last_updated'] = self.time_last_updated
         return None
 
