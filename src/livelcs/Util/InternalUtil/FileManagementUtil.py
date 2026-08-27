@@ -47,7 +47,6 @@ def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
     import os
     import pandas as pd
     from shutil import copyfile
-    from livelcs.Util.util import find_lsst_config
     from livelcs.Util.ExternalUtil.StandardUtil import extract_ra_dec_target_string_sources
 
     if type(target) is pd.DataFrame:

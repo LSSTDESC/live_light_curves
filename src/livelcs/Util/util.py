@@ -1,5 +1,6 @@
 '''utility file'''
-
+### TO BE REMOVED
+"""
 def parse_arguments(all_arguments=None):
     '''this function takes the list of arguments provided in the command line and generates a
     dictionary from them if possible. 
@@ -278,7 +279,7 @@ def extract_image(
     return file_to_write
 
 def extract_ra_dec_target_string(input_series):
-    """Take an input pandas series that has columns 'name', 'ra', 'dec' and return extracted values
+    '''Take an input pandas series that has columns 'name', 'ra', 'dec' and return extracted values
     input_series: pd.Series object 
     return: tuple with types 
         (
@@ -286,7 +287,7 @@ def extract_ra_dec_target_string(input_series):
             float: ra,
             float: dec
         )
-    """
+    '''
     import pandas as pd
 
     if type(input_series) is pd.Series:
@@ -310,14 +311,15 @@ def extract_ra_dec_target_string(input_series):
             return None, None, None
 
 def make_temp_yaml_with_new_roi(target, original_path, band, extension="_tmp"):
-    """Lightcurver requires a configuration file with the region of interest
+    '''
+    Lightcurver requires a configuration file with the region of interest
     input as the parameter ROI for each object
     target: pd.DataFrame contianing information about the targeted object. Must contain "name", "ra", "dec" keys.
     original_path: string representing the path to the template LSST config file
     band: string representing the band being used
     extension: string representing an additional extension to add to the file name
     return: newly generated temporary configuartion file name, directory for the raw files
-    """
+    '''
     import os
     import pandas as pd
     from shutil import copyfile
@@ -576,3 +578,4 @@ def update_web_page():
 
 
 
+"""
