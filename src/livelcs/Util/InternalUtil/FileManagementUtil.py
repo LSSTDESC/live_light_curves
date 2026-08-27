@@ -7,6 +7,7 @@ def find_lsst_config(target_string="config_LSST.yaml", lsst_config_path=None):
     return discovered configuration path
     '''
     from os import path
+    config_path = None
     if lsst_config_path is not None:
         if path.isfile(lsst_config_path):
             return lsst_config_path
@@ -26,7 +27,7 @@ def find_lsst_config(target_string="config_LSST.yaml", lsst_config_path=None):
             if path.isfile(test_path):
                 config_path = path.abspath(test_path)
                 break
-    if config_path:
+    if config_path is not None:
         return config_path
     else: #pragma: no cover 
         # do not cover because we don't want to delete file for testing
