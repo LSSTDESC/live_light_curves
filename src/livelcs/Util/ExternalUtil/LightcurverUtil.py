@@ -155,7 +155,7 @@ def run_lightcurver():
     extract_stamps()
     model_psfs()
     compute_stellar_photometry()
-    #calculate_normalization_coefficient()
+    calculate_normalization_coefficient()
     calculate_zeropoint()
     prepare_roi_data_file()
     model_roi()
