@@ -1,6 +1,6 @@
 numpy
 starred-astro
-lightcurver
+lightcurver @ git+https://github.com/duxfrederic/lightcurver.git
 astropy
 scipy
 pyvo
