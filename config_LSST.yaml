@@ -191,8 +191,8 @@ gaia_provider: 'gaia'  # 'gaia' or 'vizier'. ('gaia' queries the gaia archive)
 # if an integer N: select the top N closest stars to the ROI.
 stars_to_use_psf: null
 stars_to_use_norm: null
-stars_to_exclude_psf: 'k'                                 
-stars_to_exclude_norm: 'k'                                
+stars_to_exclude_psf: ''
+stars_to_exclude_norm: ''
 
 ############################################## Extraction of cutouts ###################################################
 
