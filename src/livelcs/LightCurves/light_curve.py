@@ -59,7 +59,7 @@ class LightCurve:
         return: None
         '''
         from astropy.time import Time as astro_time
-        from livelcs.Util.util import check_new_light_curve_data 
+        from livelcs.Util.InternalUtil.LiveLightCurvesUtil import check_new_light_curve_data 
         if self.time_last_updated is None:
             self.time_last_updated = astro_time.now()
 
