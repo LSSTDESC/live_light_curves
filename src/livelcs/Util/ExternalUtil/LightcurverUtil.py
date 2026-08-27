@@ -147,18 +147,18 @@ def run_lightcurver():
     '''This function runs the full lightcurver process
     return: None
     '''
-
-    get_lsst_config()
-    initialize_lightcurver_database()
-    run_lightcurver_task_wrappers()
-    query_stars()
-    extract_stamps()
-    model_psfs()
-    compute_stellar_photometry()
-    calculate_normalization_coefficient()
-    calculate_zeropoint()
-    prepare_roi_data_file()
-    model_roi()
+    if __name__ == '__main__':
+        get_lsst_config()
+        initialize_lightcurver_database()
+        run_lightcurver_task_wrappers()
+        query_stars()
+        extract_stamps()
+        model_psfs()
+        compute_stellar_photometry()
+        calculate_normalization_coefficient()
+        calculate_zeropoint()
+        prepare_roi_data_file()
+        model_roi()
 
 
 
