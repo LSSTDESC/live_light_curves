@@ -88,5 +88,43 @@ class LightCurve:
         return None
 
 
+def load_light_curve(file_name, directory="./extracted_light_curves/", extension="_lc.json"):
+    '''load the json light curve from a file
+    file_name: string representing the path of the file to load
+    directory: string representing the directory containing the file to load
+    extension: extension of the lightcurve object, default is .lc
+    return: lightcurve object
+    '''
+
+    import json
+    import os
+
+    if os.path.isdir(directory) is False:
+        os.mkdir(directory)
+    if os.path.isfile(os.path.join(directory+file_name)+extension) is False:
+        blank_light_curve = LightCurve()
+        blank_light_curve.save_light_curve(file_name, directory=directory, extension=extension)
+    with open(os.path.join(directory,file_name)+extension, 'r') as f:
+        loaded_light_curve_data = json.load(f)
+        loaded_light_curve = LightCurve(data=loaded_light_curve_data)
+    assert type(loaded_light_curve) == LightCurve
+    if "time_last_updated" not in loaded_light_curve.data:
+        loaded_light_curve["time_last_updated"] = None
+    return loaded_light_curve
 
 
+
+def check_new_light_curve_data(new_data):
+    '''check that the new data is in the correct format for the light curve object
+    new_data: dictionary of data to append a lightcurve object
+    return: set object containing no duplicates for the bands to query
+    '''
+    assert type(new_data) is dict, "new data must be a dictionary"
+    new_data_images = set([key for key in new_data.keys()])
+    for image in new_data_images:
+        new_data_bands = set([key.split("_")[0] for key in new_data[image].keys()])
+        for band in new_data_bands:
+            if band+"_time" not in new_data[image] or band+"_mag" not in new_data[image] or band+"_mag_err" not in new_data[image]:
+                raise ValueError(f"new data for band {band} must include time, mag, and mag_err")
+    return new_data_bands
+  
