@@ -270,6 +270,12 @@ for jj in tqdm.tqdm(range((targets.shape[0]))):
                 band
             )
 
+            # continue to next reference if there is not h5 or database file
+            if not os.path.isfile(path_to_h5_data):
+                continue
+            if not os.path.isfile(path_to_database):
+                continue
+
             # extract required tables from database file
             zpt_table = extract_table_from_database(path_to_database, 'absolute_zeropoints')
             frames_table = extract_table_from_database(path_to_database, 'frames')
