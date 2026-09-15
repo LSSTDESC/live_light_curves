@@ -24,7 +24,6 @@ from livelcs.Util.InternalUtil.FileManagementUtil import (
 
 from livelcs.Util.InternalUtil.LiveLightCurvesUtil import (
     parse_arguments,
-    load_light_curve
 )
 
 from livelcs.Util.ExternalUtil.ButlerUtil import (
@@ -51,7 +50,10 @@ from livelcs.Util.ExternalUtil.StarredUtil import (
     convert_mags_dataframe_to_light_curve
 )
 
-from livelcs.LightCurves.light_curve import LightCurve
+from livelcs.LightCurves.light_curve import (
+    LightCurve,
+    load_light_curve
+)
 
 
 
